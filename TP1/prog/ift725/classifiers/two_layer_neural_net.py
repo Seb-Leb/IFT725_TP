@@ -2,6 +2,7 @@
 # Version finale rédigée par Carl Lemaire, Vincent Ducharme et Pierre-Marc Jodoin
 
 import numpy as np
+from scipy.special import softmax
 
 
 class TwoLayerNeuralNet(object):
@@ -81,8 +82,9 @@ class TwoLayerNeuralNet(object):
         # Stocker le résultat dans la variable "scores", qui devrait être un        #
         # tableau de la forme (N, C).                                               #
         #############################################################################
-
-        #scores = ...
+        layer1Score = X.dot(Weights1) + biases1
+        layer1Output = np.maximum(layer1Score, 0)   # ReLU
+        scores = layer1Output.dot(Weights2) + biases2
         #############################################################################
         #                             FIN DE VOTRE CODE                             #
         #############################################################################
@@ -97,12 +99,25 @@ class TwoLayerNeuralNet(object):
         # TODO: Terminez la propagation avant et calculez la softmax +              #
         #  l'entropie-croisée.                                                      #
         # Cela devrait inclure à la fois la perte de données et la régularisation   #
-        # L2 pour les poids Weights1, Weights2, biais 1 et bias 2. Stockez le       #
+        # L2 pour les poids Weights1, Weights2, biais 1 et biais 2. Stockez le      #
         # résultat dans la variable "loss", qui doit être une valeur scalaire.      #
         # NOTE : votre code doit être linéarisé et donc ne contenir AUCUNE boucle   #
         #############################################################################
-        loss = loss*0
+        # converting y to T (a matrix of one-hot vectors)
+        T = np.zeros((y.size, C))
+        T[np.arange(y.size), y] = 1
+        print(f"T = \n{T}")
 
+        Y = softmax(scores, axis=1)
+        Y = np.clip(Y, 1e-15, 1)    # restrain softmax's values to [1e-15, 1] to prevent computing log(0)
+        print(f"Y = \n{Y}")
+
+        # creating an alias for the L2 norm
+        L2Norm = np.linalg.norm
+
+        loss = - np.trace( T.T.dot(np.log(Y)) ) # data loss TODO : see np.sum(np.inner(a, b)) or np.einsum('ij,ji->', a, b) for optimisation purpose
+        loss += reg * (L2Norm(Weights1) + L2Norm(biases1) + L2Norm(Weights2) + L2Norm(biases2)) # regularisation L2
+        print(f"loss = {loss}")
         #############################################################################
         #                             FIN DE VOTRE CODE                             #
         #############################################################################
@@ -123,6 +138,7 @@ class TwoLayerNeuralNet(object):
         #   f1  pre-activation of the 1st layer (N, H)
         #   a1  activation of the 1st layer (N, H)
 
+        dloss_dscores = (Y-T)
 
         grads['W1'] = 0
         grads['W2'] = 0
