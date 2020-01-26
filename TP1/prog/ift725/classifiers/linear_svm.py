@@ -34,25 +34,30 @@ def svm_naive_loss_function(W, X, y, reg):
     #  terme de régularisation L2 : reg*||w||^2                                 #
     #############################################################################
     classNum = W.shape[1]
-    batchSize = len(y)
+    batchSize = X.shape[0]
 
     for i, x in enumerate(X):
-        t = np.eye(classNum)[y[i]] # convert class target to one-hot vector
-        dataLoss = 1 - t.dot(W.T).dot(x)
-        loss += max(0, dataLoss)
+        scores = W.T.dot(x)
+        targetScore = scores[y[i]]
 
-        prediction = np.argmax(W.T.dot(x))
-        if prediction != y[i]:    # add gradient if data is wrongly classified
-            dW.T[prediction] -= x
-            dW.T[y[i]] += x
+        for j in range(classNum):
+            if j == y[i]:
+                continue
 
+            margin = scores[j] - targetScore + 1
+            loss += max(0, margin)
+
+            if margin > 0:
+                dW.T[j] += x
+                dW.T[y[i]] -= x
 
     # averaging loss and dW according to batch's size
     loss /= batchSize
     dW /= batchSize
 
     # add regularization
-    loss += reg * np.linalg.norm(W)
+    loss += reg * np.linalg.norm(W)**2
+    dW += 2 * reg * W
     #############################################################################
     #                            FIN DE VOTRE CODE                              #
     #############################################################################
