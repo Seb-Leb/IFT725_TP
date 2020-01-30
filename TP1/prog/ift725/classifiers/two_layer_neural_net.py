@@ -2,6 +2,7 @@
 # Version finale rédigée par Carl Lemaire, Vincent Ducharme et Pierre-Marc Jodoin
 
 import numpy as np
+from scipy.special import softmax
 
 
 class TwoLayerNeuralNet(object):
@@ -81,8 +82,9 @@ class TwoLayerNeuralNet(object):
         # Stocker le résultat dans la variable "scores", qui devrait être un        #
         # tableau de la forme (N, C).                                               #
         #############################################################################
-
-        #scores = ...
+        layer1Score = X.dot(Weights1) + biases1
+        layer1Output = np.maximum(layer1Score, 0)   # ReLU
+        scores = layer1Output.dot(Weights2) + biases2
         #############################################################################
         #                             FIN DE VOTRE CODE                             #
         #############################################################################
@@ -97,12 +99,26 @@ class TwoLayerNeuralNet(object):
         # TODO: Terminez la propagation avant et calculez la softmax +              #
         #  l'entropie-croisée.                                                      #
         # Cela devrait inclure à la fois la perte de données et la régularisation   #
-        # L2 pour les poids Weights1, Weights2, biais 1 et bias 2. Stockez le       #
+        # L2 pour les poids Weights1, Weights2, biais 1 et biais 2. Stockez le      #
         # résultat dans la variable "loss", qui doit être une valeur scalaire.      #
         # NOTE : votre code doit être linéarisé et donc ne contenir AUCUNE boucle   #
         #############################################################################
-        loss = loss*0
+        # compute probabilities
+        Y = softmax(scores, axis=1)
+        Y = np.clip(Y, 1e-15, 1)    # restrain softmax's values to [1e-15, 1] to prevent computing log(0)
 
+        # extract the probabilities of the targets
+        targetsProbas = Y[range(N), y]
+
+        # compute batch loss
+        loss = - np.log(targetsProbas).sum()
+
+        # normalise loss
+        loss /= N
+
+        # add regularization
+        L2Norm = np.linalg.norm # creating an alias for the L2 norm
+        loss += reg * (L2Norm(Weights1)**2 + L2Norm(biases1)**2 + L2Norm(Weights2)**2 + L2Norm(biases2)**2)
         #############################################################################
         #                             FIN DE VOTRE CODE                             #
         #############################################################################
@@ -123,11 +139,25 @@ class TwoLayerNeuralNet(object):
         #   f1  pre-activation of the 1st layer (N, H)
         #   a1  activation of the 1st layer (N, H)
 
+        # compute scores' gradient
+        scoresGradient = Y
+        scoresGradient[range(N), y] -= 1
 
-        grads['W1'] = 0
-        grads['W2'] = 0
-        grads['b1'] = 0
-        grads['b2'] = 0
+        # normalise
+        scoresGradient /= N
+
+        # compute W2 and b2's gradients
+        grads['W2'] = layer1Output.T.dot(scoresGradient)
+        grads['W2'] += 2 * reg * Weights2   # regularisation
+        grads['b2'] = scoresGradient.sum(axis=0)
+
+        # compute the gradient of the hidden layer's scores
+        layer1Gradient = scoresGradient.dot(Weights2.T)
+        layer1Gradient[layer1Output <= 0] = 0 # ReLU
+
+        grads['W1'] = X.T.dot(layer1Gradient)
+        grads['W1'] += 2 * reg * Weights1   # regularisation
+        grads['b1'] = layer1Gradient.sum(axis=0)
         #############################################################################
         #                             FIN DE VOTRE CODE                             #
         #############################################################################
@@ -172,7 +202,9 @@ class TwoLayerNeuralNet(object):
             #  d'entrainement.                                                      #
             # Stockez-les dans "data_batch" and "labels_batch" respectivement.      #
             #########################################################################
-
+            batchIndexes = np.random.choice(num_train, batch_size, replace=True)
+            data_batch = X[batchIndexes]
+            labels_batch = y[batchIndexes]
             #########################################################################
             #                            FIN DE VOTRE CODE                          #
             #########################################################################
@@ -188,8 +220,10 @@ class TwoLayerNeuralNet(object):
             # Vous aurez besoin d'utiliser les gradients stockés dans le            #
             # dictionnaire "grads" défini précédemment.                             #
             #########################################################################
-
-
+            self.params['W1'] -= learning_rate * grads['W1']
+            self.params['W2'] -= learning_rate * grads['W2']
+            self.params['b1'] -= learning_rate * grads['b1']
+            self.params['b2'] -= learning_rate * grads['b2']
             #########################################################################
             #                            FIN DE VOTRE CODE                          #
             #########################################################################
@@ -235,8 +269,8 @@ class TwoLayerNeuralNet(object):
         # TODO: Implémentez cette fonction; elle devrait être TRÈS simple!        #
         # Indice : vous pouvez appeler des fonctions déjà codées...               #
         ###########################################################################
-
-
+        scores = self.loss(X)
+        y_pred = np.argmax(scores, axis=1)
         ###########################################################################
         #                             FIN DE VOTRE CODE                           #
         ###########################################################################
