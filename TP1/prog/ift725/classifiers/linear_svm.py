@@ -33,7 +33,31 @@ def svm_naive_loss_function(W, X, y, reg):
     #  être par la suite moyennés.  Et, à la fin, n'oubliez pas d'ajouter le    #
     #  terme de régularisation L2 : reg*||w||^2                                 #
     #############################################################################
+    classNum = W.shape[1]
+    batchSize = X.shape[0]
 
+    for i, x in enumerate(X):
+        scores = W.T.dot(x)
+        targetScore = scores[y[i]]
+
+        for j in range(classNum):
+            if j == y[i]:
+                continue
+
+            margin = scores[j] - targetScore + 1
+            loss += max(0, margin)
+
+            if margin > 0:
+                dW.T[j] += x
+                dW.T[y[i]] -= x
+
+    # averaging loss and dW according to batch's size
+    loss /= batchSize
+    dW /= batchSize
+
+    # add regularization
+    loss += 0.5 * reg * np.linalg.norm(W)**2
+    dW += reg * W
     #############################################################################
     #                            FIN DE VOTRE CODE                              #
     #############################################################################
@@ -55,7 +79,22 @@ def svm_vectorized_loss_function(W, X, y, reg):
     # Veuillez mettre le résultat dans la variable "loss".                      #
     # NOTE : Cette fonction ne doit contenir aucune boucle                      #
     #############################################################################
-    loss = 0.0
+    batchSize = X.shape[0]
+
+    # compute scores and isolate targets' scores
+    scores = X.dot(W)
+    targetScores = scores[range(batchSize), y].reshape((-1,1)) # transpose to column vector
+
+    # compute margins
+    margins = np.maximum(0, scores - targetScores + 1)
+    margins[range(batchSize), y] = 0
+    loss = np.sum(margins)
+
+    # averaging loss according to batch's size
+    loss /= batchSize
+
+    # add regularisation
+    loss += 0.5 * reg * np.linalg.norm(W)**2
 
     #############################################################################
     #                            FIN DE VOTRE CODE                              #
@@ -71,7 +110,20 @@ def svm_vectorized_loss_function(W, X, y, reg):
     # avez utilisées pour calculer la perte.                                    #
     #############################################################################
 
-    dW = dW*0
+    # create mask for X with positive margins
+    marginsMask = (margins > 0).astype(int)
+
+    # set the data's target to count the number of these examples where margin > 0
+    marginsMask[range(batchSize), y] = - marginsMask.sum(axis=1)
+
+    # compute gradient
+    dW = X.T.dot(marginsMask)
+
+    # averaging gradient according to batch's size
+    dW /= batchSize
+
+    # add regularisation
+    dW += reg * W
 
     #############################################################################
     #                            FIN DE VOTRE CODE                              #
