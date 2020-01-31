@@ -38,9 +38,18 @@ def softmax_naive_loss_function(W, X, y, reg):
     # numérique, soustrayez le score maximum de la classe de tous les scores    #
     # d'un échantillon.                                                         #
     #############################################################################
-    loss = loss*0
-    dW = dW*0
-
+    C = W.shape[1]
+    for n, x in enumerate(X):
+        y_x       = np.dot(W.T, x)
+        #y_1hot    = np.identity(C)[y[n]]
+        softmax   = np.exp(y_x)/sum(np.exp(y_x))
+        loss     += -np.log(softmax[y[n]] )
+        for c in range(C):
+            dW[:, c] += (softmax[c]-(c == y[n])) * x
+    loss /= n
+    loss += reg*np.linalg.norm(W)
+    dW /= n
+    dW += reg*W
     #############################################################################
     #                         FIN DE VOTRE CODE                                 #
     #############################################################################
@@ -75,8 +84,21 @@ def softmax_vectorized_loss_function(W, X, y, reg):
     # numérique, soustrayez le score maximum de la classe de tous les scores    #
     # d'un échantillon.                                                         #
     #############################################################################
-    loss = loss * 0
-    dW = dW * 0
+    #print(X)
+    N = X.shape[0]
+    y_x  = np.dot(X, W)
+    y_x -= np.max(y_x, axis=1, keepdims=True)
+    sum_yx = np.sum(np.exp(y_x), axis=1, keepdims=True)
+    P = np.exp(y_x)/sum_yx
+    loss = np.sum(-np.log(P[np.arange(N), y]))
+    loss /= N
+    loss += reg*np.linalg.norm(W)
+
+    k = np.zeros_like(P)
+    k[np.arange(N), y] = 1
+    dW = np.dot(X.T, P-k)
+    dW /= N
+    dW += reg*W
 
     #############################################################################
     #                         FIN DE VOTRE CODE                                 #
