@@ -38,18 +38,23 @@ def softmax_naive_loss_function(W, X, y, reg):
     # numérique, soustrayez le score maximum de la classe de tous les scores    #
     # d'un échantillon.                                                         #
     #############################################################################
+    N = X.shape[0]
     C = W.shape[1]
-    for n, x in enumerate(X):
-        y_x       = np.dot(W.T, x)
-        #y_1hot    = np.identity(C)[y[n]]
-        softmax   = np.exp(y_x)/sum(np.exp(y_x))
-        loss     += -np.log(softmax[y[n]] )
+
+    for i, x in enumerate(X):
+        y_x  = np.dot(W.T, x)
+        y_x -= np.max(y_x)  # to avoid numerical instability
+
+        softmax  = np.exp(y_x) / sum(np.exp(y_x))
+        loss    += -np.log( softmax[y[i]] )
         for c in range(C):
-            dW[:, c] += (softmax[c]-(c == y[n])) * x
-    loss /= n
-    loss += reg*np.linalg.norm(W*W)
-    dW /= n
-    dW += 2*reg*W
+            dW[:, c] += (softmax[c] - (c == y[i]) ) * x
+
+    loss /= N
+    loss += reg * np.linalg.norm(W)**2
+
+    dW /= N
+    dW += 2 * reg * W
     #############################################################################
     #                         FIN DE VOTRE CODE                                 #
     #############################################################################
@@ -84,18 +89,21 @@ def softmax_vectorized_loss_function(W, X, y, reg):
     # numérique, soustrayez le score maximum de la classe de tous les scores    #
     # d'un échantillon.                                                         #
     #############################################################################
-    #print(X)
     N = X.shape[0]
+
     y_x  = np.dot(X, W)
-    y_x -= np.max(y_x, axis=1, keepdims=True)
+    y_x -= np.max(y_x, axis=1, keepdims=True) # to avoid numerical instability
+
     sum_yx = np.sum(np.exp(y_x), axis=1, keepdims=True)
-    P = np.exp(y_x)/sum_yx
-    loss = np.sum(-np.log(P[np.arange(N), y]))
+    P = np.exp(y_x) / sum_yx
+
+    loss = np.sum( - np.log( P[range(N), y] ) )
     loss /= N
-    loss += reg*np.linalg.norm(W*W)
+    loss += reg * np.linalg.norm(W)**2
 
     k = np.zeros_like(P)
-    k[np.arange(N), y] = 1
+    k[range(N), y] = 1
+
     dW = np.dot(X.T, P-k)
     dW /= N
     dW += 2*reg*W
