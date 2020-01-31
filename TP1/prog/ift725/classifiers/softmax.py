@@ -47,9 +47,9 @@ def softmax_naive_loss_function(W, X, y, reg):
         for c in range(C):
             dW[:, c] += (softmax[c]-(c == y[n])) * x
     loss /= n
-    loss += reg*np.linalg.norm(W)
+    loss += reg*np.linalg.norm(W*W)
     dW /= n
-    dW += reg*W
+    dW += 2*reg*W
     #############################################################################
     #                         FIN DE VOTRE CODE                                 #
     #############################################################################
