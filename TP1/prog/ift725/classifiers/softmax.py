@@ -92,13 +92,13 @@ def softmax_vectorized_loss_function(W, X, y, reg):
     P = np.exp(y_x)/sum_yx
     loss = np.sum(-np.log(P[np.arange(N), y]))
     loss /= N
-    loss += reg*np.linalg.norm(W)
+    loss += reg*np.linalg.norm(W*W)
 
     k = np.zeros_like(P)
     k[np.arange(N), y] = 1
     dW = np.dot(X.T, P-k)
     dW /= N
-    dW += reg*W
+    dW += 2*reg*W
 
     #############################################################################
     #                         FIN DE VOTRE CODE                                 #
