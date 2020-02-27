@@ -131,9 +131,6 @@ class TwoLayerNeuralNet(object):
         loss += self.reg * np.linalg.norm(self.params['b1'])**2
         loss += self.reg * np.linalg.norm(self.params['W2'])**2
         loss += self.reg * np.linalg.norm(self.params['b2'])**2
-        """
-        loss += 0.5 * self.reg * np.sum(self.params['W1'] * self.params['W1'])
-        loss += 0.5 * self.reg * np.sum(self.params['W2'] * self.params['W2'])"""
 
         dx2, grads['W2'], grads['b2'] = backward_fully_connected(dscores, cache2)
         dx1, grads['W1'], grads['b1'] = backward_fully_connected_transform_relu(dx2, cache1)
@@ -218,11 +215,11 @@ class FullyConnectedNeuralNet(object):
         ############################################################################
         dims = [input_dim] + hidden_dims + [num_classes]
         for i in range(self.num_layers):
-            self.params['W' + str(i + 1)] = weight_scale * np.random.randn(dims[i], dims[i + 1])
-            self.params['b' + str(i + 1)] = np.zeros(dims[i + 1])
+            self.params[self.pn('W', i+1)] = weight_scale * np.random.randn(dims[i], dims[i + 1])
+            self.params[self.pn('b', i+1)] = np.zeros(dims[i + 1])
             if i < self.num_layers - 1 and use_batchnorm:
-                self.params['gamma' + str(i + 1)] = np.ones(dims[i + 1])
-                self.params['beta' + str(i + 1)] = np.zeros(dims[i + 1])
+                self.params[self.pn('gamma', i+1)] = np.ones(dims[i + 1])
+                self.params[self.pn('beta', i+1)] = np.zeros(dims[i + 1])
         ############################################################################
         #                             FIN DE VOTRE CODE                            #
         ############################################################################
@@ -285,27 +282,28 @@ class FullyConnectedNeuralNet(object):
         ############################################################################
         caches = []
         cachesD = []
-        input_to_layer = X
+        layerInput = X
         for i in range(self.num_layers):
+            W_id = self.pn('W', i+1)
+            b_id = self.pn('b', i+1)
+            gamma_id = self.pn('gamma', i+1)
+            beta_id = self.pn('beta', i+1)
+
             if i == self.num_layers - 1:
-                scores, cache = forward_fully_connected(input_to_layer, self.params['W' + str(i + 1)],
-                                               self.params['b' + str(i + 1)])
+                scores, cache = forward_fully_connected(layerInput, self.params[W_id], self.params[b_id])
                 caches.append(cache)
             else:
                 if self.use_batchnorm:
-                    input_to_layer, cache1 = forward_fully_connected(input_to_layer, self.params['W' + str(i + 1)],
-                                                          self.params['b' + str(i + 1)])
-                    input_to_layer, cache2 = forward_batch_normalization(input_to_layer, self.params['gamma' + str(i + 1)],
-                                                              self.params['beta' + str(i + 1)], self.bn_params[i])
-                    input_to_layer, cache3 = forward_relu(input_to_layer)
+                    layerInput, cache1 = forward_fully_connected(layerInput, self.params[W_id], self.params[b_id])
+                    layerInput, cache2 = forward_batch_normalization(layerInput, self.params[gamma_id], self.params[beta_id], self.bn_params[i])
+                    layerInput, cache3 = forward_relu(layerInput)
                     cache = (cache1, cache2, cache3)
                 else:
-                    input_to_layer, cache = forward_fully_connected_transform_relu(input_to_layer, self.params['W' + str(i + 1)],
-                                                                self.params['b' + str(i + 1)])
+                    layerInput, cache = forward_fully_connected_transform_relu(layerInput, self.params[W_id], self.params[b_id])
                 caches.append(cache)
 
                 if self.use_dropout:
-                    input_to_layer, cacheD = forward_inverted_dropout(input_to_layer, self.dropout_param)
+                    layerInput, cacheD = forward_inverted_dropout(layerInput, self.dropout_param)
                     cachesD.append(cacheD)
         ############################################################################
         #                             FIN DE VOTRE CODE                            #
@@ -331,29 +329,37 @@ class FullyConnectedNeuralNet(object):
         # régularisation L2 inclus un facteur de 0.5 pour simplifier l'expression  #
         # pour le gradient.                                                        #
         ############################################################################
-        loss, dscores = softmax_loss(scores, y)
-        for i in range(self.num_layers):
-            loss += 0.5 * self.reg * np.sum(self.params['W' + str(i + 1)] * self.params['W' + str(i + 1)])
+        loss, dx = softmax_loss(scores, y)
 
-        dx = dscores
-        for i in range(self.num_layers - 1, -1, -1):
-            nCouche = str(i+1)
+        for i in reversed(range(self.num_layers)):
+            W_id = self.pn('W', i+1)
+            b_id = self.pn('b', i+1)
+            gamma_id = self.pn('gamma', i+1)
+            beta_id = self.pn('beta', i+1)
+
+            # add regularization loss
+            loss += self.reg * np.linalg.norm(self.params[W_id])**2
+            loss += self.reg * np.linalg.norm(self.params[b_id])**2
+
+            # compute gradients
             if i == self.num_layers - 1:
-                dx, grads['W' + nCouche], grads['b' + nCouche] = backward_fully_connected(dx, caches[i])
+                dx, grads[W_id], grads[b_id] = backward_fully_connected(dx, caches[i])
             else:
-
                 if self.use_dropout:
                     dx = backward_inverted_dropout(dx, cachesD[i])
 
                 if self.use_batchnorm:
                     cache1, cache2, cache3 = caches[i]
-                    dx3 = backward_relu(dout, cache3)
-                    dx2, grads['gamma' + nCouche], grads['beta' + nCouche] = backward_batch_normalization_alternative(dx3, cache2)
-                    dx, grads['W' + nCouche], grads['b' + nCouche] = backward_fully_connected(dx2, cache1)
-                else:
-                    dx, grads['W' + nCouche], grads['b' + nCouche] = backward_fully_connected_transform_relu(dx, caches[i])
+                    dx3 = backward_relu(dx, cache3)
+                    dx2, grads[gamma_id], grads[beta_id] = backward_batch_normalization_alternative(dx3, cache2)
+                    dx, grads[W_id], grads[b_id] = backward_fully_connected(dx2, cache1)
 
-            grads['W' + nCouche] += self.reg * self.params['W' + nCouche]
+                else:
+                    dx, grads[W_id], grads[b_id] = backward_fully_connected_transform_relu(dx, caches[i])
+
+            # add regularization gradients
+            grads[W_id] += 2 * self.reg * self.params[W_id]
+            grads[b_id] += 2 * self.reg * self.params[b_id]
         ############################################################################
         #                             FIN DE VOTRE CODE                            #
         ############################################################################

@@ -663,16 +663,17 @@ def softmax_loss(x, y, scale=1.0):
     # TODO: La perte softmax en vous inspirant du tp1 mais sans régularisation  #
     #                                                                           #
     #############################################################################
-
-    probs = np.exp(x - np.max(x, axis=1, keepdims=True))
-    probs /= np.sum(probs, axis=1, keepdims=True)
     N = x.shape[0]
-    loss = -np.sum(np.log(probs[np.arange(N), y])) / N
+    softmax = np.exp(x - np.max(x, axis=1, keepdims=True)) # remove max to avoid numerical instability
+    softmax /= np.sum(softmax, axis=1, keepdims=True)
+
+    loss = np.sum( - np.log(softmax[range(N), y]) )
+    loss /= N
     #############################################################################
     #                             FIN DE VOTRE CODE                             #
     #############################################################################
 
-    dx = probs.copy()
+    dx = softmax.copy()
     dx[np.arange(N), y] -= 1
     dx /= N
 
