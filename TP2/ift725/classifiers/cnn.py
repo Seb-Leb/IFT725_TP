@@ -97,7 +97,6 @@ class ThreeLayerConvolutionalNet(object):
         out, crp_cache = forward_convolutional_relu_pool(X, W1, b1, conv_param, pool_param)
         out, ar_cache = forward_fully_connected_transform_relu(out, W2, b2)
         scores, a_cache = forward_fully_connected(out, W3, b3)
-
         ############################################################################
         #                             FIN DE VOTRE CODE                            #
         ############################################################################
@@ -116,13 +115,21 @@ class ThreeLayerConvolutionalNet(object):
         ############################################################################
         loss, dscores = softmax_loss(scores, y)
 
+        # compute back-prob
         dx, grads['W3'], grads['b3'] = backward_fully_connected(dscores, a_cache)
         dx, grads['W2'], grads['b2'] = backward_fully_connected_transform_relu(dx, ar_cache)
         dx, grads['W1'], grads['b1'] = backward_convolutional_relu_pool(dx, crp_cache)
+
+        # add regularisation
         for i in range(1, 4):
-            W = self.params['W' + str(i)]
-            loss += 0.5 * self.reg * np.sum(W * W)
-            grads['W' + str(i)] += self.reg * W
+            W_id = 'W' + str(i)
+            b_id = 'b' + str(i)
+
+            loss += self.reg * np.linalg.norm(self.params[W_id])**2
+            loss += self.reg * np.linalg.norm(self.params[b_id])**2
+
+            grads[W_id] += 2 * self.reg * self.params[W_id]
+            grads[b_id] += 2 * self.reg * self.params[b_id]
         ############################################################################
         #                             FIN DE VOTRE CODE                            #
         ############################################################################
