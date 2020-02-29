@@ -2,7 +2,10 @@
 .idea
 
 #ipynb checkpoints
-TP1/prog/.ipynb_checkpoints
+.ipynb_checkpoints
 
 #Cifar-10's data
-TP1/prog/ift725/datasets/cifar-10-batches-py
+cifar-10-batches-py
+
+#archives
+*.zip
