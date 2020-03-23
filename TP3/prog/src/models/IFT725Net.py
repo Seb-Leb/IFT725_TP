@@ -18,7 +18,7 @@ TODO
 Ajouter du code ici pour faire fonctionner le réseau IFT725Net.  Le réseau est constitué de
 
     1) quelques opérations de base du type « conv-batch-norm-relu »
-    2) 1 (ou plus) bloc dense inspiré du modèle « denseNet)
+    2) 1 (ou plus) bloc dense inspiré du modèle « denseNet »
     3) 1 (ou plus) bloc résiduel inspiré de « resNet »
     4) 1 (ou plus) bloc de couches « bottleneck » avec ou sans connexion résiduelle, c’est au choix
     5) 1 (ou plus) couches pleinement connectées
