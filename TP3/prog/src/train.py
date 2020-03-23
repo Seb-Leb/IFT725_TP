@@ -66,10 +66,18 @@ if __name__ == "__main__":
     val_set = args.validation
     learning_rate = args.lr
     data_augment = args.data_aug
+
     if data_augment:
         print('Data augmentation activated!')
+        data_augment_transforms = [
+            transforms.RandomAffine(degrees=10),
+            transforms.ColorJitter(contrast=0.5, hue=0.5),
+            transforms.RandomHorizontalFlip(p=0.5),
+            transforms.RandomCrop(32)
+        ]
     else:
         print('Data augmentation NOT activated!')
+        data_augment_transforms = []
 
     # set hdf5 path according your hdf5 file location
     hdf5_file = '../data/hdf5/ift725_acdc.hdf5'
@@ -77,12 +85,12 @@ if __name__ == "__main__":
     # Transform is used to normalize data among others
     acdc_base_transform = transforms.Compose([
         transforms.ToTensor()
-    ])
+    ] + data_augment_transforms)
 
     base_transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-    ])
+    ] + data_augment_transforms)
 
     if args.dataset == 'cifar10':
         # Download the train and test set and apply transform on it
