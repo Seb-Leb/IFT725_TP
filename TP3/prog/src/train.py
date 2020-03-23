@@ -83,14 +83,14 @@ if __name__ == "__main__":
     hdf5_file = '../data/hdf5/ift725_acdc.hdf5'
 
     # Transform is used to normalize data among others
-    acdc_base_transform = transforms.Compose([
+    acdc_base_transform = transforms.Compose( data_augment_transforms + [
         transforms.ToTensor()
-    ] + data_augment_transforms)
+    ])
 
-    base_transform = transforms.Compose([
+    base_transform = transforms.Compose( data_augment_transforms + [
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-    ] + data_augment_transforms)
+    ])
 
     if args.dataset == 'cifar10':
         # Download the train and test set and apply transform on it
