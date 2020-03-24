@@ -10,7 +10,7 @@ Other: Suggestions are welcome
 
 import torch.nn as nn
 from models.CNNBaseModel import CNNBaseModel
-from models.CNNBlocks import ResidualBlock
+from models.CNNBlocks import ConvBatchNormReluBlock, DenseBlock, ResidualBlock, BottleneckBlock
 
 '''
 TODO
@@ -42,6 +42,32 @@ class IFT725Net(CNNBaseModel):
         """
         super(IFT725Net, self).__init__()
 
+        self.conv_layers = nn.Sequential(
+            ConvBatchNormReluBlock(3, 32),
+            ConvBatchNormReluBlock(32, 64),
+            ConvBatchNormReluBlock(64, 128),
+            DenseBlock(128, 256),
+            ResidualBlock(256, 512),
+            BottleneckBlock(512, 256, 512)
+        )
+
+        self.classifier = nn.Sequential(
+            nn.Linear(512, 2048),
+            nn.ReLU(True),
+            nn.Dropout(0.5),
+            nn.Linear(2048, num_classes)
+        )
+
+    def forward(self, x):
+        """
+        Forward pass of the model
+        Args:
+            x: Tensor
+        """
+        x = self.conv_layers(x)
+        x = x.view(x.size(0), -1)
+        x = self.classifier(x)
+        return x
 
 
 '''
