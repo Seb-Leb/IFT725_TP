@@ -41,6 +41,7 @@ class ResidualBlock(nn.Module):
         output = F.relu(output)
         return output
 
+
 class ConvBatchNormReluBlock(nn.Module):
     """
     Building block of the conv-batch-norm-relu network.
@@ -54,6 +55,7 @@ class ConvBatchNormReluBlock(nn.Module):
     def forward(self, x):
         output = F.relu(self.batch_norm(self.conv(x)))
         return output
+
 
 class DenseBlock(nn.Module):
     """
@@ -81,6 +83,7 @@ class DenseBlock(nn.Module):
         output = torch.cat([output, self.shortcut(x)], 1)
         output = F.relu(output)
         return output
+
 
 class BottleneckBlock(nn.Module):
     """
