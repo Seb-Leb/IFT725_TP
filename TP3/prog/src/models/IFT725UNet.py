@@ -78,10 +78,10 @@ class IFT725UNet(CNNBaseModel):
 
     def forward(self, x):
         """
-                Forward pass of the model
-                Args:
-                    x: Tensor
-                """
+        Forward pass of the model
+        Args:
+            x: Tensor
+        """
         # Encode
         encode_block1 = self.conv_encoder1(x)
         encode_pool1 = self.max_pool_encoder1(encode_block1)
@@ -140,7 +140,8 @@ class IFT725UNet(CNNBaseModel):
         )
         return block
 
-    def _final_block(self, in_channels, mid_channels, out_channels, kernel_size=3):
+    @staticmethod
+    def _final_block(in_channels, mid_channels, out_channels, kernel_size=3):
         """
         Final block of the UNet model
         """
