@@ -20,6 +20,7 @@ from HDF5Dataset import HDF5Dataset
 from models.AlexNet import AlexNet
 from models.CNNVanilla import CnnVanilla
 from models.IFT725Net import IFT725Net
+from models.IFT725UNet import IFT725UNet
 from models.ResNet import ResNet
 from models.UNet import UNet
 from models.VggNet import VggNet
@@ -38,7 +39,7 @@ def argument_parser():
                                                  " need to provide a dataset since UNet model only train "
                                                  "on acdc dataset.")
     parser.add_argument('--model', type=str, default="CnnVanilla",
-                        choices=["CnnVanilla", "VggNet", "AlexNet", "ResNet", "IFT725Net", "UNet"])
+                        choices=["CnnVanilla", "VggNet", "AlexNet", "ResNet", "IFT725Net", "IFT725UNet", "UNet"])
     parser.add_argument('--dataset', type=str, default="cifar10", choices=["cifar10", "svhn"])
     parser.add_argument('--batch_size', type=int, default=20,
                         help='The size of the training batch')
@@ -54,6 +55,14 @@ def argument_parser():
                         help="Data augmentation")
     parser.add_argument('--predict', action='store_true',
                         help="Use UNet model to predict the mask of a randomly selected image from the test set")
+    parser.add_argument('--IFT725UNet_dense_encode', action='store_true',
+                        help="Use dense blocks during the encoding of the IFT725UNet model")
+    parser.add_argument('--IFT725UNet_dense_decode', action='store_true',
+                        help="Use dense blocks during the decoding of the IFT725UNet model")
+    parser.add_argument('--IFT725UNet_residual_encode', action='store_true',
+                        help="Use residual blocks during the encoding of the IFT725UNet model")
+    parser.add_argument('--IFT725UNet_residual_decode', action='store_true',
+                        help="Use residual blocks during the decoding of the IFT725UNet model")
     return parser.parse_args()
 
 
@@ -67,6 +76,12 @@ if __name__ == "__main__":
     learning_rate = args.lr
     data_augment = args.data_aug
 
+    # IFT725UNet's hyper-parameters
+    IFT725UNet_dense_encode = args.IFT725UNet_dense_encode
+    IFT725UNet_dense_decode = args.IFT725UNet_dense_decode
+    IFT725UNet_residual_encode = args.IFT725UNet_residual_encode
+    IFT725UNet_residual_decode = args.IFT725UNet_residual_decode
+
     if data_augment:
         print('Data augmentation activated!')
     else:
@@ -78,9 +93,9 @@ if __name__ == "__main__":
     # Transform is used to normalize data among others
     if data_augment:
         acdc_base_transform = transforms.Compose([
+            transforms.ToPILImage(),
             transforms.RandomAffine(degrees=45),
             transforms.ColorJitter(brightness=0.5, contrast=0.5),
-            transforms.RandomHorizontalFlip(p=0.5),
             transforms.RandomCrop(32),
             transforms.ToTensor()
         ])
@@ -88,6 +103,7 @@ if __name__ == "__main__":
         base_transform = transforms.Compose([
             transforms.RandomAffine(degrees=45),
             transforms.ColorJitter(contrast=0.5, hue=0.5),
+            transforms.RandomHorizontalFlip(p=0.5),
             transforms.RandomCrop(32),
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
@@ -127,8 +143,12 @@ if __name__ == "__main__":
         model = ResNet(num_classes=10)
     elif args.model == 'IFT725Net':
         model = IFT725Net(num_classes=10)
-    elif args.model == 'UNet':
-        model = UNet(num_classes=4)
+    elif args.model == 'UNet' or args.model == 'IFT725UNet':
+        if args.model == 'UNet':
+            model = UNet(num_classes=4)
+        else:
+            model = IFT725UNet(num_classes=4, dense_encode=IFT725UNet_dense_encode, dense_decode=IFT725UNet_dense_decode,
+                               residual_encode=IFT725UNet_residual_encode, residual_decode=IFT725UNet_residual_decode)
         args.dataset = 'acdc'
 
         train_set = HDF5Dataset('train', hdf5_file, transform=acdc_base_transform)
