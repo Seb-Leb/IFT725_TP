@@ -40,19 +40,19 @@ class IFT725Net(CNNBaseModel):
             init_weights(bool): when true uses _initialize_weights function to initialize
             network's weights.
         """
-        super(IFT725Net, self).__init__()
+        super(IFT725Net, self).__init__(num_classes, init_weights)
 
         self.conv_layers = nn.Sequential(
             ConvBatchNormReluBlock(3, 32),
             ConvBatchNormReluBlock(32, 64),
             ConvBatchNormReluBlock(64, 128),
-            DenseBlock(128, 256),
+            DenseBlock(128, 128),
             ResidualBlock(256, 512),
             BottleneckBlock(512, 256, 512)
         )
 
         self.classifier = nn.Sequential(
-            nn.Linear(512, 2048),
+            nn.Linear(512*32*32, 2048),
             nn.ReLU(True),
             nn.Dropout(0.5),
             nn.Linear(2048, num_classes)
