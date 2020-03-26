@@ -91,41 +91,44 @@ if __name__ == "__main__":
     hdf5_file = '../data/hdf5/ift725_acdc.hdf5'
 
     # Transform is used to normalize data among others
-    if data_augment:
-        acdc_base_transform = transforms.Compose([
-            transforms.ToPILImage(),
-            transforms.RandomAffine(degrees=45),
-            transforms.ColorJitter(brightness=0.5, contrast=0.5),
-            transforms.RandomCrop(32),
-            transforms.ToTensor()
-        ])
+    acdc_augment_transform = transforms.Compose([
+        transforms.ToPILImage(),
+        transforms.Grayscale(),
+        transforms.RandomAffine(degrees=45),
+        transforms.ColorJitter(brightness=0.5, contrast=0.5),
+        transforms.RandomCrop(32),
+        transforms.ToTensor()
+    ])
 
-        base_transform = transforms.Compose([
-            transforms.RandomAffine(degrees=45),
-            transforms.ColorJitter(contrast=0.5, hue=0.5),
-            transforms.RandomHorizontalFlip(p=0.5),
-            transforms.RandomCrop(32),
-            transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-        ])
-    else:
-        acdc_base_transform = transforms.Compose([
-            transforms.ToTensor()
-        ])
+    augment_transform = transforms.Compose([
+        transforms.RandomAffine(degrees=45),
+        transforms.ColorJitter(contrast=0.5, hue=0.5),
+        transforms.RandomHorizontalFlip(p=0.5),
+        transforms.RandomCrop(32),
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    ])
 
-        base_transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-        ])
+    acdc_base_transform = transforms.Compose([
+        transforms.ToTensor()
+    ])
+
+    base_transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    ])
+
+    acdc_train_transform = acdc_augment_transform if data_augment else acdc_base_transform
+    train_transform = augment_transform if data_augment else base_transform
 
     if args.dataset == 'cifar10':
         # Download the train and test set and apply transform on it
-        train_set = datasets.CIFAR10(root='../data', train=True, download=True, transform=base_transform)
+        train_set = datasets.CIFAR10(root='../data', train=True, download=True, transform=train_transform)
         test_set = datasets.CIFAR10(root='../data', train=False, download=True, transform=base_transform)
 
     elif args.dataset == 'svhn':
         # Download the train and test set and apply transform on it
-        train_set = datasets.SVHN(root='../data', split='train', download=True, transform=base_transform)
+        train_set = datasets.SVHN(root='../data', split='train', download=True, transform=train_transform)
         test_set = datasets.SVHN(root='../data', split='test', download=True, transform=base_transform)
 
     if args.optimizer == 'SGD':
@@ -143,15 +146,18 @@ if __name__ == "__main__":
         model = ResNet(num_classes=10)
     elif args.model == 'IFT725Net':
         model = IFT725Net(num_classes=10)
-    elif args.model == 'UNet' or args.model == 'IFT725UNet':
-        if args.model == 'UNet':
-            model = UNet(num_classes=4)
-        else:
-            model = IFT725UNet(num_classes=4, dense_encode=IFT725UNet_dense_encode, dense_decode=IFT725UNet_dense_decode,
-                               residual_encode=IFT725UNet_residual_encode, residual_decode=IFT725UNet_residual_decode)
+    elif args.model == 'UNet':
+        model = UNet(num_classes=4)
         args.dataset = 'acdc'
 
         train_set = HDF5Dataset('train', hdf5_file, transform=acdc_base_transform)
+        test_set = HDF5Dataset('test', hdf5_file, transform=acdc_base_transform)
+    elif args.model == 'IFT725UNet':
+        model = IFT725UNet(num_classes=4, dense_encode=IFT725UNet_dense_encode, dense_decode=IFT725UNet_dense_decode,
+                           residual_encode=IFT725UNet_residual_encode, residual_decode=IFT725UNet_residual_decode)
+        args.dataset = 'acdc'
+
+        train_set = HDF5Dataset('train', hdf5_file, transform=acdc_train_transform)
         test_set = HDF5Dataset('test', hdf5_file, transform=acdc_base_transform)
 
     model_trainer = CNNTrainTestManager(model=model,
@@ -172,7 +178,7 @@ if __name__ == "__main__":
         print("Training {} on {} for {} epochs".format(model.__class__.__name__, args.dataset, args.num_epochs))
         model_trainer.train(num_epochs)
         model_trainer.evaluate_on_test_set()
-        if isinstance(model, UNet):
+        if isinstance(model, UNet) or isinstance(model, IFT725UNet):
             model.save()  # save the model's weights for prediction (see help for more details)
             model_trainer.plot_image_mask_prediction()
         model_trainer.plot_metrics()

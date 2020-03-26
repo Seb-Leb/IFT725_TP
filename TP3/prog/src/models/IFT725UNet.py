@@ -117,7 +117,7 @@ class IFT725UNet(CNNBaseModel):
             nn.Conv2d(kernel_size=kernel_size, in_channels=out_channels, out_channels=out_channels, padding=1),
             nn.ReLU(),
             nn.BatchNorm2d(out_channels),
-            DenseBlock(out_channels, out_channels) if self.dense_encode else nn.Sequential(),
+            DenseBlock(out_channels, out_channels//2) if self.dense_encode else nn.Sequential(),
             ResidualBlock(out_channels, out_channels) if self.residual_encode else nn.Sequential()
         )
         return block
@@ -135,7 +135,7 @@ class IFT725UNet(CNNBaseModel):
             nn.BatchNorm2d(mid_channels),
             nn.ConvTranspose2d(in_channels=mid_channels, out_channels=out_channels, kernel_size=3, stride=2, padding=1,
                                output_padding=1),
-            DenseBlock(out_channels, out_channels) if self.dense_decode else nn.Sequential(),
+            DenseBlock(out_channels, out_channels//2) if self.dense_decode else nn.Sequential(),
             ResidualBlock(out_channels, out_channels) if self.residual_decode else nn.Sequential()
         )
         return block
