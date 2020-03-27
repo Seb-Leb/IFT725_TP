@@ -4,6 +4,7 @@ name: "IFT725_Net"
 layer {
   name: "Data"
   type: "Data"
+  top: "Data"
   input_param {
       shape: {
           dim: 1
@@ -30,7 +31,7 @@ layer {
 }
 layer {
   name: "Batch norm 1"
-  type: "BN"
+  type: "LRN"
   bottom: "Conv 1"
   top: "Conv 1"
 }
@@ -57,7 +58,7 @@ layer {
 }
 layer {
   name: "Batch norm 2"
-  type: "BN"
+  type: "LRN"
   bottom: "Conv 2"
   top: "Conv 2"
 }
@@ -84,7 +85,7 @@ layer {
 }
 layer {
   name: "Batch norm 3"
-  type: "BN"
+  type: "LRN"
   bottom: "Conv 3"
   top: "Conv 3"
 }
@@ -111,7 +112,7 @@ layer {
 }
 layer {
   name: "Batch norm 4"
-  type: "BN"
+  type: "LRN"
   bottom: "Conv 4"
   top: "Conv 4"
 }
@@ -136,7 +137,7 @@ layer {
 }
 layer {
   name: "Batch norm 5"
-  type: "BN"
+  type: "LRN"
   bottom: "Conv 5"
   top: "Conv 5"
 }
@@ -160,7 +161,7 @@ layer {
 layer {
   name: "Conv 6"
   type: "Convolution"
-  bottom: "ReLU 5"
+  bottom: "Concat"
   top: "Conv 6"
   convolution_param {
     num_output: 256
@@ -171,7 +172,7 @@ layer {
 }
 layer {
   name: "Batch norm 6"
-  type: "BN"
+  type: "LRN"
   bottom: "Conv 6"
   top: "Conv 6"
 }
@@ -196,16 +197,34 @@ layer {
 }
 layer {
   name: "Batch norm 7"
-  type: "BN"
+  type: "LRN"
   bottom: "Conv 7"
   top: "Conv 7"
 }
 
 layer {
+  name: "Shortcut Conv"
+  type: "Convolution"
+  bottom: "Concat"
+  top: "Shortcut Conv"
+  convolution_param {
+    num_output: 512
+    kernel_size: 1
+    stride: 1
+    pad: 0
+  }
+}
+layer {
+  name: "Shortcut Batch norm"
+  type: "LRN"
+  bottom: "Shortcut Conv"
+  top: "Shortcut Conv"
+}
+layer {
   name: "Add"
   type: "Eltwise"
   bottom: "Conv 7"
-  bottom: "ReLU 5"
+  bottom: "Shortcut Conv"
   top: "Add"
   eltwise_param {
     operation: SUM
@@ -223,7 +242,7 @@ layer {
 layer {
   name: "Conv 8 (Bottleneck)"
   type: "Convolution"
-  bottom: "ReLU 7"
+  bottom: "Add"
   top: "Conv 8 (Bottleneck)"
   convolution_param {
     num_output: 256
@@ -234,7 +253,7 @@ layer {
 }
 layer {
   name: "Batch norm 8"
-  type: "BN"
+  type: "LRN"
   bottom: "Conv 8 (Bottleneck)"
   top: "Conv 8 (Bottleneck)"
 }
@@ -259,7 +278,7 @@ layer {
 }
 layer {
   name: "Batch norm 9"
-  type: "BN"
+  type: "LRN"
   bottom: "Conv 9"
   top: "Conv 9"
 }
@@ -284,7 +303,7 @@ layer {
 }
 layer {
   name: "Batch norm 10"
-  type: "BN"
+  type: "LRN"
   bottom: "Conv 10"
   top: "Conv 10"
 }
