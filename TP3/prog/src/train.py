@@ -170,7 +170,7 @@ if __name__ == "__main__":
                                         use_cuda=True)
 
     if args.predict:
-        model.load_weights('UNet.pt')
+        model.load_weights(f"{type(model).__name__}.pt")
         model_trainer.evaluate_on_test_set()
         print("predicting the mask of a randomly selected image from test set")
         model_trainer.plot_image_mask_prediction()

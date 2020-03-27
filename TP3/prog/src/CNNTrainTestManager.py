@@ -193,7 +193,7 @@ class CNNTrainTestManager(object):
                 test_inputs, test_labels = data[0].to(self.device), data[1].to(self.device)
                 test_outputs = self.model(test_inputs)
                 accuracies += self.accuracy(test_outputs, test_labels)
-        print("Accuracy (or Dice for UNet) on the test set: {:05.3f} %".format(100 * accuracies / len(test_loader)))
+        print(f"Accuracy (or Dice for UNet or IFT725UNet) on the test set: {accuracies / len(test_loader):05.3%}")
 
     def plot_metrics(self):
         """

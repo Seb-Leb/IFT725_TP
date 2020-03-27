@@ -222,7 +222,8 @@ def mean_dice(input: Tensor, target: Tensor, reduction: str = 'mean') -> Tensor:
     Returns:
         (1,) or (N,), the mean dice score for the classes in the target, reduced or for each sample.
     """
-    labels = torch.unique(target[target.nonzero(as_tuple=True)])  # Identify classes (that are not background)
+    # labels = torch.unique(target[target.nonzero(as_tuple=True)])  # Identify classes (that are not background)
+    labels = torch.tensor([1, 2, 3], dtype=torch.long).to('cuda:0')  # Fix empty tensor bug encountered with IFT725UNet
 
     # Compute the dice score for each individual class
     dices = torch.stack([dice(input, target, label, reduction=reduction)
