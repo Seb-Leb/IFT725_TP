@@ -1,0 +1,358 @@
+name: "IFT725_Net"
+
+# Input
+layer {
+  name: "Data"
+  type: "Data"
+  top: "Data"
+  input_param {
+      shape: {
+          dim: 1
+          dim: 3
+          dim: 32
+          dim: 32
+      }
+   }
+}
+
+
+# ConvBatchNormReluBlock
+layer {
+  name: "Conv 1"
+  type: "Convolution"
+  bottom: "Data"
+  top: "Conv 1"
+  convolution_param {
+    num_output: 32
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Batch norm 1"
+  type: "LRN"
+  bottom: "Conv 1"
+  top: "Conv 1"
+}
+layer {
+  name: "ReLU 1"
+  type: "ReLU"
+  bottom: "Conv 1"
+  top: "Conv 1"
+}
+
+
+# ConvBatchNormReluBlock
+layer {
+  name: "Conv 2"
+  type: "Convolution"
+  bottom: "Conv 1"
+  top: "Conv 2"
+  convolution_param {
+    num_output: 64
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Batch norm 2"
+  type: "LRN"
+  bottom: "Conv 2"
+  top: "Conv 2"
+}
+layer {
+  name: "ReLU 2"
+  type: "ReLU"
+  bottom: "Conv 2"
+  top: "Conv 2"
+}
+
+
+# ConvBatchNormReluBlock
+layer {
+  name: "Conv 3"
+  type: "Convolution"
+  bottom: "Conv 2"
+  top: "Conv 3"
+  convolution_param {
+    num_output: 128
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Batch norm 3"
+  type: "LRN"
+  bottom: "Conv 3"
+  top: "Conv 3"
+}
+layer {
+  name: "ReLU 3"
+  type: "ReLU"
+  bottom: "Conv 3"
+  top: "Conv 3"
+}
+
+
+# DenseBlock
+layer {
+  name: "Conv 4"
+  type: "Convolution"
+  bottom: "Conv 3"
+  top: "Conv 4"
+  convolution_param {
+    num_output: 128
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Batch norm 4"
+  type: "LRN"
+  bottom: "Conv 4"
+  top: "Conv 4"
+}
+layer {
+  name: "ReLU 4"
+  type: "ReLU"
+  bottom: "Conv 4"
+  top: "Conv 4"
+}
+
+layer {
+  name: "Conv 5"
+  type: "Convolution"
+  bottom: "Conv 4"
+  top: "Conv 5"
+  convolution_param {
+    num_output: 128
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Batch norm 5"
+  type: "LRN"
+  bottom: "Conv 5"
+  top: "Conv 5"
+}
+
+layer {
+  name: "Concat"
+  type: "Concat"
+  bottom: "Conv 5"
+  bottom: "Conv 3"
+  top: "Concat"
+}
+layer {
+  name: "ReLU 5"
+  type: "ReLU"
+  bottom: "Concat"
+  top: "Concat"
+}
+
+
+# ResidualBlock
+layer {
+  name: "Conv 6"
+  type: "Convolution"
+  bottom: "Concat"
+  top: "Conv 6"
+  convolution_param {
+    num_output: 256
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Batch norm 6"
+  type: "LRN"
+  bottom: "Conv 6"
+  top: "Conv 6"
+}
+layer {
+  name: "ReLU 6"
+  type: "ReLU"
+  bottom: "Conv 6"
+  top: "Conv 6"
+}
+
+layer {
+  name: "Conv 7"
+  type: "Convolution"
+  bottom: "Conv 6"
+  top: "Conv 7"
+  convolution_param {
+    num_output: 512
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Batch norm 7"
+  type: "LRN"
+  bottom: "Conv 7"
+  top: "Conv 7"
+}
+
+layer {
+  name: "Shortcut Conv"
+  type: "Convolution"
+  bottom: "Concat"
+  top: "Shortcut Conv"
+  convolution_param {
+    num_output: 512
+    kernel_size: 1
+    stride: 1
+    pad: 0
+  }
+}
+layer {
+  name: "Shortcut Batch norm"
+  type: "LRN"
+  bottom: "Shortcut Conv"
+  top: "Shortcut Conv"
+}
+layer {
+  name: "Add"
+  type: "Eltwise"
+  bottom: "Conv 7"
+  bottom: "Shortcut Conv"
+  top: "Add"
+  eltwise_param {
+    operation: SUM
+  }
+}
+layer {
+  name: "ReLU 7"
+  type: "ReLU"
+  bottom: "Add"
+  top: "Add"
+}
+
+
+# BottleneckBlock
+layer {
+  name: "Conv 8 (Bottleneck)"
+  type: "Convolution"
+  bottom: "Add"
+  top: "Conv 8 (Bottleneck)"
+  convolution_param {
+    num_output: 256
+    kernel_size: 1
+    stride: 1
+    pad: 0
+  }
+}
+layer {
+  name: "Batch norm 8"
+  type: "LRN"
+  bottom: "Conv 8 (Bottleneck)"
+  top: "Conv 8 (Bottleneck)"
+}
+layer {
+  name: "ReLU 8"
+  type: "ReLU"
+  bottom: "Conv 8 (Bottleneck)"
+  top: "Conv 8 (Bottleneck)"
+}
+
+layer {
+  name: "Conv 9"
+  type: "Convolution"
+  bottom: "Conv 8 (Bottleneck)"
+  top: "Conv 9"
+  convolution_param {
+    num_output: 256
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Batch norm 9"
+  type: "LRN"
+  bottom: "Conv 9"
+  top: "Conv 9"
+}
+layer {
+  name: "ReLU 9"
+  type: "ReLU"
+  bottom: "Conv 9"
+  top: "Conv 9"
+}
+
+layer {
+  name: "Conv 10"
+  type: "Convolution"
+  bottom: "Conv 9"
+  top: "Conv 10"
+  convolution_param {
+    num_output: 512
+    kernel_size: 1
+    stride: 1
+    pad: 0
+  }
+}
+layer {
+  name: "Batch norm 10"
+  type: "LRN"
+  bottom: "Conv 10"
+  top: "Conv 10"
+}
+layer {
+  name: "ReLU 10"
+  type: "ReLU"
+  bottom: "Conv 10"
+  top: "Conv 10"
+}
+
+
+# Fully connected layer
+layer {
+  name: "FC 1"
+  type: "InnerProduct"
+  bottom: "Conv 10"
+  top: "FC 1"
+  inner_product_param {
+    num_output: 2048
+  }
+}
+layer {
+  name: "ReLU 11"
+  type: "ReLU"
+  bottom: "FC 1"
+  top: "FC 1"
+}
+layer {
+  name: "Dropout"
+  type: "Dropout"
+  bottom: "FC 1"
+  top: "FC 1"
+}
+
+
+# Fully connected output layer
+layer {
+  name: "FC 2"
+  type: "InnerProduct"
+  bottom: "FC 1"
+  top: "FC 2"
+  inner_product_param {
+    num_output: 10
+  }
+}
+
+layer {
+  name: "Prediction"
+  type: "SoftmaxWithLoss"
+  bottom: "FC 2"
+  top: "Prediction"
+}
