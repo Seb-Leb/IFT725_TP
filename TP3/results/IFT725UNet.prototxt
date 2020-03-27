@@ -4,6 +4,7 @@ name: "IFT725_UNet"
 layer {
   name: "ACDC Data"
   type: "Data"
+  top: "ACDC Data"
   input_param {
       shape: {
           dim: 1
@@ -41,7 +42,7 @@ layer {
 }
 layer {
   name: "Batch norm 1"
-  type: "BN"
+  type: "LRN"
   bottom: "Classic Conv 1"
   top: "Classic Conv 1"
 }
@@ -66,7 +67,7 @@ layer {
 }
 layer {
   name: "Batch norm 2"
-  type: "BN"
+  type: "LRN"
   bottom: "Classic Conv 2"
   top: "Classic Conv 2"
 }
@@ -85,7 +86,7 @@ layer {
 }
 layer {
   name: "Dense Batch norm 1"
-  type: "BN"
+  type: "LRN"
   bottom: "Dense Conv 1"
   top: "Dense Conv 1"
 }
@@ -109,7 +110,7 @@ layer {
 }
 layer {
   name: "Dense Batch norm 2"
-  type: "BN"
+  type: "LRN"
   bottom: "Dense Conv 2"
   top: "Dense Conv 2"
 }
@@ -130,7 +131,7 @@ layer {
 layer {
   name: "Residual Conv 1"
   type: "Convolution"
-  bottom: "Dense ReLU 2"
+  bottom: "Concat 1"
   top: "Residual Conv 1"
   convolution_param {
     num_output: 64
@@ -141,7 +142,7 @@ layer {
 }
 layer {
   name: "Residual Batch norm 1"
-  type: "BN"
+  type: "LRN"
   bottom: "Residual Conv 1"
   top: "Residual Conv 1"
 }
@@ -166,7 +167,7 @@ layer {
 }
 layer {
   name: "Residual Batch norm 2"
-  type: "BN"
+  type: "LRN"
   bottom: "Residual Conv 2"
   top: "Residual Conv 2"
 }
@@ -174,7 +175,7 @@ layer {
   name: "Add 1"
   type: "Eltwise"
   bottom: "Residual Conv 2"
-  bottom: "Dense ReLU 2"
+  bottom: "Concat 1"
   top: "Add 1"
   eltwise_param {
     operation: SUM
@@ -189,7 +190,7 @@ layer {
 layer {
   name: "Max pooling 1"
   type: "Pooling"
-  bottom: "Residual ReLU 2"
+  bottom: "Add 1"
   top: "Max pooling 1"
   pooling_param {
     pool: MAX
@@ -223,7 +224,7 @@ layer {
 }
 layer {
   name: "Batch norm 3"
-  type: "BN"
+  type: "LRN"
   bottom: "Classic Conv 3"
   top: "Classic Conv 3"
 }
@@ -248,7 +249,7 @@ layer {
 }
 layer {
   name: "Batch norm 4"
-  type: "BN"
+  type: "LRN"
   bottom: "Classic Conv 4"
   top: "Classic Conv 4"
 }
@@ -267,7 +268,7 @@ layer {
 }
 layer {
   name: "Dense Batch norm 3"
-  type: "BN"
+  type: "LRN"
   bottom: "Dense Conv 3"
   top: "Dense Conv 3"
 }
@@ -291,7 +292,7 @@ layer {
 }
 layer {
   name: "Dense Batch norm 4"
-  type: "BN"
+  type: "LRN"
   bottom: "Dense Conv 4"
   top: "Dense Conv 4"
 }
@@ -312,7 +313,7 @@ layer {
 layer {
   name: "Residual Conv 3"
   type: "Convolution"
-  bottom: "Dense ReLU 4"
+  bottom: "Concat 2"
   top: "Residual Conv 3"
   convolution_param {
     num_output: 128
@@ -323,7 +324,7 @@ layer {
 }
 layer {
   name: "Residual Batch norm 3"
-  type: "BN"
+  type: "LRN"
   bottom: "Residual Conv 3"
   top: "Residual Conv 3"
 }
@@ -348,7 +349,7 @@ layer {
 }
 layer {
   name: "Residual Batch norm 4"
-  type: "BN"
+  type: "LRN"
   bottom: "Residual Conv 4"
   top: "Residual Conv 4"
 }
@@ -356,7 +357,7 @@ layer {
   name: "Add 2"
   type: "Eltwise"
   bottom: "Residual Conv 4"
-  bottom: "Dense ReLU 4"
+  bottom: "Concat 2"
   top: "Add 2"
   eltwise_param {
     operation: SUM
@@ -371,7 +372,7 @@ layer {
 layer {
   name: "Max pooling 2"
   type: "Pooling"
-  bottom: "Residual ReLU 4"
+  bottom: "Add 2"
   top: "Max pooling 2"
   pooling_param {
     pool: MAX
@@ -405,7 +406,7 @@ layer {
 }
 layer {
   name: "Batch norm 5"
-  type: "BN"
+  type: "LRN"
   bottom: "Classic Conv 5"
   top: "Classic Conv 5"
 }
@@ -430,7 +431,7 @@ layer {
 }
 layer {
   name: "Batch norm 6"
-  type: "BN"
+  type: "LRN"
   bottom: "Classic Conv 6"
   top: "Classic Conv 6"
 }
@@ -449,7 +450,7 @@ layer {
 }
 layer {
   name: "Dense Batch norm 5"
-  type: "BN"
+  type: "LRN"
   bottom: "Dense Conv 5"
   top: "Dense Conv 5"
 }
@@ -473,7 +474,7 @@ layer {
 }
 layer {
   name: "Dense Batch norm 6"
-  type: "BN"
+  type: "LRN"
   bottom: "Dense Conv 6"
   top: "Dense Conv 6"
 }
@@ -494,7 +495,7 @@ layer {
 layer {
   name: "Residual Conv 5"
   type: "Convolution"
-  bottom: "Dense ReLU 6"
+  bottom: "Concat 3"
   top: "Residual Conv 5"
   convolution_param {
     num_output: 256
@@ -505,7 +506,7 @@ layer {
 }
 layer {
   name: "Residual Batch norm 5"
-  type: "BN"
+  type: "LRN"
   bottom: "Residual Conv 5"
   top: "Residual Conv 5"
 }
@@ -530,7 +531,7 @@ layer {
 }
 layer {
   name: "Residual Batch norm 6"
-  type: "BN"
+  type: "LRN"
   bottom: "Residual Conv 6"
   top: "Residual Conv 6"
 }
@@ -538,7 +539,7 @@ layer {
   name: "Add 3"
   type: "Eltwise"
   bottom: "Residual Conv 6"
-  bottom: "Dense ReLU 6"
+  bottom: "Concat 3"
   top: "Add 3"
   eltwise_param {
     operation: SUM
@@ -553,7 +554,7 @@ layer {
 layer {
   name: "Max pooling 3"
   type: "Pooling"
-  bottom: "Residual ReLU 6"
+  bottom: "Add 3"
   top: "Max pooling 3"
   pooling_param {
     pool: MAX
@@ -588,7 +589,7 @@ layer {
 }
 layer {
   name: "Batch norm 7"
-  type: "BN"
+  type: "LRN"
   bottom: "Classic Conv 7"
   top: "Classic Conv 7"
 }
@@ -613,7 +614,7 @@ layer {
 }
 layer {
   name: "Batch norm 8"
-  type: "BN"
+  type: "LRN"
   bottom: "Classic Conv 8"
   top: "Classic Conv 8"
 }
@@ -632,7 +633,7 @@ layer {
 }
 layer {
   name: "Dense Batch norm 7"
-  type: "BN"
+  type: "LRN"
   bottom: "Dense Conv 7"
   top: "Dense Conv 7"
 }
@@ -656,7 +657,7 @@ layer {
 }
 layer {
   name: "Dense Batch norm 8"
-  type: "BN"
+  type: "LRN"
   bottom: "Dense Conv 8"
   top: "Dense Conv 8"
 }
@@ -677,7 +678,7 @@ layer {
 layer {
   name: "Residual Conv 7"
   type: "Convolution"
-  bottom: "Dense ReLU 8"
+  bottom: "Concat 4"
   top: "Residual Conv 7"
   convolution_param {
     num_output: 512
@@ -688,7 +689,7 @@ layer {
 }
 layer {
   name: "Residual Batch norm 7"
-  type: "BN"
+  type: "LRN"
   bottom: "Residual Conv 7"
   top: "Residual Conv 7"
 }
@@ -713,7 +714,7 @@ layer {
 }
 layer {
   name: "Residual Batch norm 8"
-  type: "BN"
+  type: "LRN"
   bottom: "Residual Conv 8"
   top: "Residual Conv 8"
 }
@@ -721,7 +722,7 @@ layer {
   name: "Add 4"
   type: "Eltwise"
   bottom: "Residual Conv 8"
-  bottom: "Dense ReLU 8"
+  bottom: "Concat 4"
   top: "Add 4"
   eltwise_param {
     operation: SUM
@@ -736,7 +737,7 @@ layer {
 layer {
   name: "Max pooling 4"
   type: "Pooling"
-  bottom: "Residual ReLU 8"
+  bottom: "Add 4"
   top: "Max pooling 4"
   pooling_param {
     pool: MAX
@@ -773,7 +774,7 @@ layer {
 }
 layer {
   name: "Batch norm 9"
-  type: "BN"
+  type: "LRN"
   bottom: "Classic Conv 9"
   top: "Classic Conv 9"
 }
@@ -797,7 +798,7 @@ layer {
 }
 layer {
   name: "Batch norm 10"
-  type: "BN"
+  type: "LRN"
   bottom: "Classic Conv 10"
   top: "Classic Conv 10"
 }
@@ -851,7 +852,7 @@ layer {
 }
 layer {
   name: "Batch norm 11"
-  type: "BN"
+  type: "LRN"
   bottom: "Classic Conv 11"
   top: "Classic Conv 11"
 }
@@ -876,7 +877,7 @@ layer {
 }
 layer {
   name: "Batch norm 12"
-  type: "BN"
+  type: "LRN"
   bottom: "Classic Conv 12"
   top: "Classic Conv 12"
 }
@@ -909,7 +910,7 @@ layer {
 }
 layer {
   name: "Dense Batch norm 11"
-  type: "BN"
+  type: "LRN"
   bottom: "Dense Conv 11"
   top: "Dense Conv 11"
 }
@@ -933,7 +934,7 @@ layer {
 }
 layer {
   name: "Dense Batch norm 12"
-  type: "BN"
+  type: "LRN"
   bottom: "Dense Conv 12"
   top: "Dense Conv 12"
 }
@@ -954,7 +955,7 @@ layer {
 layer {
   name: "Residual Conv 11"
   type: "Convolution"
-  bottom: "Dense ReLU 12"
+  bottom: "Concat 5"
   top: "Residual Conv 11"
   convolution_param {
     num_output: 256
@@ -965,7 +966,7 @@ layer {
 }
 layer {
   name: "Residual Batch norm 11"
-  type: "BN"
+  type: "LRN"
   bottom: "Residual Conv 11"
   top: "Residual Conv 11"
 }
@@ -989,7 +990,7 @@ layer {
 }
 layer {
   name: "Residual Batch norm 12"
-  type: "BN"
+  type: "LRN"
   bottom: "Residual Conv 12"
   top: "Residual Conv 12"
 }
@@ -997,7 +998,7 @@ layer {
   name: "Add 5"
   type: "Eltwise"
   bottom: "Residual Conv 12"
-  bottom: "Dense ReLU 12"
+  bottom: "Concat 5"
   top: "Add 5"
   eltwise_param {
     operation: SUM
@@ -1041,7 +1042,7 @@ layer {
 }
 layer {
   name: "Batch norm 13"
-  type: "BN"
+  type: "LRN"
   bottom: "Classic Conv 13"
   top: "Classic Conv 13"
 }
@@ -1066,7 +1067,7 @@ layer {
 }
 layer {
   name: "Batch norm 14"
-  type: "BN"
+  type: "LRN"
   bottom: "Classic Conv 14"
   top: "Classic Conv 14"
 }
@@ -1099,7 +1100,7 @@ layer {
 }
 layer {
   name: "Dense Batch norm 13"
-  type: "BN"
+  type: "LRN"
   bottom: "Dense Conv 13"
   top: "Dense Conv 13"
 }
@@ -1123,7 +1124,7 @@ layer {
 }
 layer {
   name: "Dense Batch norm 14"
-  type: "BN"
+  type: "LRN"
   bottom: "Dense Conv 14"
   top: "Dense Conv 14"
 }
@@ -1144,7 +1145,7 @@ layer {
 layer {
   name: "Residual Conv 13"
   type: "Convolution"
-  bottom: "Dense ReLU 14"
+  bottom: "Concat 6"
   top: "Residual Conv 13"
   convolution_param {
     num_output: 128
@@ -1155,7 +1156,7 @@ layer {
 }
 layer {
   name: "Residual Batch norm 13"
-  type: "BN"
+  type: "LRN"
   bottom: "Residual Conv 13"
   top: "Residual Conv 13"
 }
@@ -1180,7 +1181,7 @@ layer {
 }
 layer {
   name: "Residual Batch norm 14"
-  type: "BN"
+  type: "LRN"
   bottom: "Residual Conv 14"
   top: "Residual Conv 14"
 }
@@ -1188,7 +1189,7 @@ layer {
   name: "Add 6"
   type: "Eltwise"
   bottom: "Residual Conv 14"
-  bottom: "Dense ReLU 14"
+  bottom: "Concat 6"
   top: "Add 6"
   eltwise_param {
     operation: SUM
@@ -1232,7 +1233,7 @@ layer {
 }
 layer {
   name: "Batch norm 15"
-  type: "BN"
+  type: "LRN"
   bottom: "Classic Conv 15"
   top: "Classic Conv 15"
 }
@@ -1257,7 +1258,7 @@ layer {
 }
 layer {
   name: "Batch norm 16"
-  type: "BN"
+  type: "LRN"
   bottom: "Classic Conv 16"
   top: "Classic Conv 16"
 }
@@ -1290,7 +1291,7 @@ layer {
 }
 layer {
   name: "Dense Batch norm 15"
-  type: "BN"
+  type: "LRN"
   bottom: "Dense Conv 15"
   top: "Dense Conv 15"
 }
@@ -1314,7 +1315,7 @@ layer {
 }
 layer {
   name: "Dense Batch norm 16"
-  type: "BN"
+  type: "LRN"
   bottom: "Dense Conv 16"
   top: "Dense Conv 16"
 }
@@ -1335,7 +1336,7 @@ layer {
 layer {
   name: "Residual Conv 15"
   type: "Convolution"
-  bottom: "Dense ReLU 16"
+  bottom: "Concat 7"
   top: "Residual Conv 15"
   convolution_param {
     num_output: 64
@@ -1346,7 +1347,7 @@ layer {
 }
 layer {
   name: "Residual Batch norm 15"
-  type: "BN"
+  type: "LRN"
   bottom: "Residual Conv 15"
   top: "Residual Conv 15"
 }
@@ -1371,7 +1372,7 @@ layer {
 }
 layer {
   name: "Residual Batch norm 16"
-  type: "BN"
+  type: "LRN"
   bottom: "Residual Conv 16"
   top: "Residual Conv 16"
 }
@@ -1379,7 +1380,7 @@ layer {
   name: "Add 7"
   type: "Eltwise"
   bottom: "Residual Conv 16"
-  bottom: "Dense ReLU 16"
+  bottom: "Concat 7"
   top: "Add 7"
   eltwise_param {
     operation: SUM
@@ -1428,7 +1429,7 @@ layer {
 }
 layer {
   name: "Batch norm 17"
-  type: "BN"
+  type: "LRN"
   bottom: "Classic Conv 17"
   top: "Classic Conv 17"
 }
@@ -1453,7 +1454,7 @@ layer {
 }
 layer {
   name: "Batch norm 18"
-  type: "BN"
+  type: "LRN"
   bottom: "Classic Conv 18"
   top: "Classic Conv 18"
 }
@@ -1478,7 +1479,7 @@ layer {
 }
 layer {
   name: "Batch norm 19"
-  type: "BN"
+  type: "LRN"
   bottom: "Classic Conv 19"
   top: "Classic Conv 19"
 }
