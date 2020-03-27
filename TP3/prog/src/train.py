@@ -150,7 +150,7 @@ if __name__ == "__main__":
         model = UNet(num_classes=4)
         args.dataset = 'acdc'
 
-        train_set = HDF5Dataset('train', hdf5_file, transform=acdc_base_transform)
+        train_set = HDF5Dataset('train', hdf5_file, transform=acdc_train_transform)
         test_set = HDF5Dataset('test', hdf5_file, transform=acdc_base_transform)
     elif args.model == 'IFT725UNet':
         model = IFT725UNet(num_classes=4, dense_encode=IFT725UNet_dense_encode, dense_decode=IFT725UNet_dense_decode,
