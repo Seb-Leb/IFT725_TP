@@ -115,10 +115,28 @@ layer {
   top: "Dense Conv 2"
 }
 layer {
+  name: "Shortcut Conv 1"
+  type: "Convolution"
+  bottom: "Classic Conv 2"
+  top: "Shortcut Conv 1"
+  convolution_param {
+    num_output: 32
+    kernel_size: 1
+    stride: 1
+    pad: 0
+  }
+}
+layer {
+  name: "Shortcut Batch norm 1"
+  type: "LRN"
+  bottom: "Shortcut Conv 1"
+  top: "Shortcut Conv 1"
+}
+layer {
   name: "Concat 1"
   type: "Concat"
   bottom: "Dense Conv 2"
-  bottom: "Classic Conv 2"
+  bottom: "Shortcut Conv 1"
   top: "Concat 1"
 }
 layer {
@@ -297,10 +315,28 @@ layer {
   top: "Dense Conv 4"
 }
 layer {
+  name: "Shortcut Conv 2"
+  type: "Convolution"
+  bottom: "Classic Conv 4"
+  top: "Shortcut Conv 2"
+  convolution_param {
+    num_output: 64
+    kernel_size: 1
+    stride: 1
+    pad: 0
+  }
+}
+layer {
+  name: "Shortcut Batch norm 2"
+  type: "LRN"
+  bottom: "Shortcut Conv 2"
+  top: "Shortcut Conv 2"
+}
+layer {
   name: "Concat 2"
   type: "Concat"
   bottom: "Dense Conv 4"
-  bottom: "Classic Conv 4"
+  bottom: "Shortcut Conv 2"
   top: "Concat 2"
 }
 layer {
@@ -479,10 +515,28 @@ layer {
   top: "Dense Conv 6"
 }
 layer {
+  name: "Shortcut Conv 3"
+  type: "Convolution"
+  bottom: "Classic Conv 6"
+  top: "Shortcut Conv 3"
+  convolution_param {
+    num_output: 128
+    kernel_size: 1
+    stride: 1
+    pad: 0
+  }
+}
+layer {
+  name: "Shortcut Batch norm 3"
+  type: "LRN"
+  bottom: "Shortcut Conv 3"
+  top: "Shortcut Conv 3"
+}
+layer {
   name: "Concat 3"
   type: "Concat"
   bottom: "Dense Conv 6"
-  bottom: "Classic Conv 6"
+  bottom: "Shortcut Conv 3"
   top: "Concat 3"
 }
 layer {
@@ -662,10 +716,28 @@ layer {
   top: "Dense Conv 8"
 }
 layer {
+  name: "Shortcut Conv 4"
+  type: "Convolution"
+  bottom: "Classic Conv 8"
+  top: "Shortcut Conv 4"
+  convolution_param {
+    num_output: 256
+    kernel_size: 1
+    stride: 1
+    pad: 0
+  }
+}
+layer {
+  name: "Shortcut Batch norm 4"
+  type: "LRN"
+  bottom: "Shortcut Conv 4"
+  top: "Shortcut Conv 4"
+}
+layer {
   name: "Concat 4"
   type: "Concat"
   bottom: "Dense Conv 8"
-  bottom: "Classic Conv 8"
+  bottom: "Shortcut Conv 4"
   top: "Concat 4"
 }
 layer {
@@ -939,10 +1011,28 @@ layer {
   top: "Dense Conv 12"
 }
 layer {
+  name: "Shortcut Conv 5"
+  type: "Convolution"
+  bottom: "Conv Transpose 2"
+  top: "Shortcut Conv 5"
+  convolution_param {
+    num_output: 128
+    kernel_size: 1
+    stride: 1
+    pad: 0
+  }
+}
+layer {
+  name: "Shortcut Batch norm 5"
+  type: "LRN"
+  bottom: "Shortcut Conv 5"
+  top: "Shortcut Conv 5"
+}
+layer {
   name: "Concat 5"
   type: "Concat"
   bottom: "Dense Conv 12"
-  bottom: "Conv Transpose 2"
+  bottom: "Shortcut Conv 5"
   top: "Concat 5"
 }
 layer {
@@ -1129,10 +1219,28 @@ layer {
   top: "Dense Conv 14"
 }
 layer {
+  name: "Shortcut Conv 6"
+  type: "Convolution"
+  bottom: "Conv Transpose 3"
+  top: "Shortcut Conv 6"
+  convolution_param {
+    num_output: 64
+    kernel_size: 1
+    stride: 1
+    pad: 0
+  }
+}
+layer {
+  name: "Shortcut Batch norm 6"
+  type: "LRN"
+  bottom: "Shortcut Conv 6"
+  top: "Shortcut Conv 6"
+}
+layer {
   name: "Concat 6"
   type: "Concat"
   bottom: "Dense Conv 14"
-  bottom: "Conv Transpose 3"
+  bottom: "Shortcut Conv 6"
   top: "Concat 6"
 }
 layer {
@@ -1320,10 +1428,28 @@ layer {
   top: "Dense Conv 16"
 }
 layer {
+  name: "Shortcut Conv 7"
+  type: "Convolution"
+  bottom: "Conv Transpose 4"
+  top: "Shortcut Conv 7"
+  convolution_param {
+    num_output: 32
+    kernel_size: 1
+    stride: 1
+    pad: 0
+  }
+}
+layer {
+  name: "Shortcut Batch norm 7"
+  type: "LRN"
+  bottom: "Shortcut Conv 7"
+  top: "Shortcut Conv 7"
+}
+layer {
   name: "Concat 7"
   type: "Concat"
   bottom: "Dense Conv 16"
-  bottom: "Conv Transpose 4"
+  bottom: "Shortcut Conv 7"
   top: "Concat 7"
 }
 layer {
