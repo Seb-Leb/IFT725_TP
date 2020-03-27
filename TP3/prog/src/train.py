@@ -96,7 +96,7 @@ if __name__ == "__main__":
         transforms.Grayscale(),
         transforms.RandomAffine(degrees=45),
         transforms.ColorJitter(brightness=0.5, contrast=0.5),
-        transforms.RandomCrop(256),
+        transforms.RandomCrop(192),  # remove 25% of the 256*256 base images
         transforms.ToTensor()
     ])
 
@@ -104,7 +104,7 @@ if __name__ == "__main__":
         transforms.RandomAffine(degrees=45),
         transforms.ColorJitter(contrast=0.5, hue=0.5),
         transforms.RandomHorizontalFlip(p=0.5),
-        transforms.RandomCrop(32),
+        transforms.RandomCrop(24),  # remove 25% of the 32*32 base images
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
     ])
@@ -150,7 +150,7 @@ if __name__ == "__main__":
         model = UNet(num_classes=4)
         args.dataset = 'acdc'
 
-        train_set = HDF5Dataset('train', hdf5_file, transform=acdc_base_transform)
+        train_set = HDF5Dataset('train', hdf5_file, transform=acdc_train_transform)
         test_set = HDF5Dataset('test', hdf5_file, transform=acdc_base_transform)
     elif args.model == 'IFT725UNet':
         model = IFT725UNet(num_classes=4, dense_encode=IFT725UNet_dense_encode, dense_decode=IFT725UNet_dense_decode,
