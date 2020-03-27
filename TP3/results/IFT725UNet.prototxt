@@ -1,0 +1,1493 @@
+name: "IFT725_UNet"
+
+# Input
+layer {
+  name: "ACDC Data"
+  type: "Data"
+  input_param {
+      shape: {
+          dim: 1
+          dim: 1
+          dim: 256
+          dim: 256
+      }
+   }
+}
+
+
+########################
+###   ENCODER PART   ###
+########################
+
+### Encoder block
+# Classic block
+layer {
+  name: "Classic Conv 1"
+  type: "Convolution"
+  bottom: "ACDC Data"
+  top: "Classic Conv 1"
+  convolution_param {
+    num_output: 64
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "ReLU 1"
+  type: "ReLU"
+  bottom: "Classic Conv 1"
+  top: "Classic Conv 1"
+}
+layer {
+  name: "Batch norm 1"
+  type: "BN"
+  bottom: "Classic Conv 1"
+  top: "Classic Conv 1"
+}
+# Classic block
+layer {
+  name: "Classic Conv 2"
+  type: "Convolution"
+  bottom: "Classic Conv 1"
+  top: "Classic Conv 2"
+  convolution_param {
+    num_output: 64
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "ReLU 2"
+  type: "ReLU"
+  bottom: "Classic Conv 2"
+  top: "Classic Conv 2"
+}
+layer {
+  name: "Batch norm 2"
+  type: "BN"
+  bottom: "Classic Conv 2"
+  top: "Classic Conv 2"
+}
+# Dense block
+layer {
+  name: "Dense Conv 1"
+  type: "Convolution"
+  bottom: "Classic Conv 2"
+  top: "Dense Conv 1"
+  convolution_param {
+    num_output: 32
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Dense Batch norm 1"
+  type: "BN"
+  bottom: "Dense Conv 1"
+  top: "Dense Conv 1"
+}
+layer {
+  name: "Dense ReLU 1"
+  type: "ReLU"
+  bottom: "Dense Conv 1"
+  top: "Dense Conv 1"
+}
+layer {
+  name: "Dense Conv 2"
+  type: "Convolution"
+  bottom: "Dense Conv 1"
+  top: "Dense Conv 2"
+  convolution_param {
+    num_output: 32
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Dense Batch norm 2"
+  type: "BN"
+  bottom: "Dense Conv 2"
+  top: "Dense Conv 2"
+}
+layer {
+  name: "Concat 1"
+  type: "Concat"
+  bottom: "Dense Conv 2"
+  bottom: "Classic Conv 2"
+  top: "Concat 1"
+}
+layer {
+  name: "Dense ReLU 2"
+  type: "ReLU"
+  bottom: "Concat 1"
+  top: "Concat 1"
+}
+# ResidualBlock
+layer {
+  name: "Residual Conv 1"
+  type: "Convolution"
+  bottom: "Dense ReLU 2"
+  top: "Residual Conv 1"
+  convolution_param {
+    num_output: 64
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Residual Batch norm 1"
+  type: "BN"
+  bottom: "Residual Conv 1"
+  top: "Residual Conv 1"
+}
+layer {
+  name: "Residual ReLU 1"
+  type: "ReLU"
+  bottom: "Residual Conv 1"
+  top: "Residual Conv 1"
+}
+
+layer {
+  name: "Residual Conv 2"
+  type: "Convolution"
+  bottom: "Residual Conv 1"
+  top: "Residual Conv 2"
+  convolution_param {
+    num_output: 64
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Residual Batch norm 2"
+  type: "BN"
+  bottom: "Residual Conv 2"
+  top: "Residual Conv 2"
+}
+layer {
+  name: "Add 1"
+  type: "Eltwise"
+  bottom: "Residual Conv 2"
+  bottom: "Dense ReLU 2"
+  top: "Add 1"
+  eltwise_param {
+    operation: SUM
+  }
+}
+layer {
+  name: "Residual ReLU 2"
+  type: "ReLU"
+  bottom: "Add 1"
+  top: "Add 1"
+}
+layer {
+  name: "Max pooling 1"
+  type: "Pooling"
+  bottom: "Residual ReLU 2"
+  top: "Max pooling 1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+    dilatation: 1
+    pad: 0
+  }
+}
+
+
+### Encoder block
+# Classic block
+layer {
+  name: "Classic Conv 3"
+  type: "Convolution"
+  bottom: "Max pooling 1"
+  top: "Classic Conv 3"
+  convolution_param {
+    num_output: 128
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "ReLU 3"
+  type: "ReLU"
+  bottom: "Classic Conv 3"
+  top: "Classic Conv 3"
+}
+layer {
+  name: "Batch norm 3"
+  type: "BN"
+  bottom: "Classic Conv 3"
+  top: "Classic Conv 3"
+}
+# Classic block
+layer {
+  name: "Classic Conv 4"
+  type: "Convolution"
+  bottom: "Classic Conv 3"
+  top: "Classic Conv 4"
+  convolution_param {
+    num_output: 128
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "ReLU 4"
+  type: "ReLU"
+  bottom: "Classic Conv 4"
+  top: "Classic Conv 4"
+}
+layer {
+  name: "Batch norm 4"
+  type: "BN"
+  bottom: "Classic Conv 4"
+  top: "Classic Conv 4"
+}
+# Dense block
+layer {
+  name: "Dense Conv 3"
+  type: "Convolution"
+  bottom: "Classic Conv 4"
+  top: "Dense Conv 3"
+  convolution_param {
+    num_output: 64
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Dense Batch norm 3"
+  type: "BN"
+  bottom: "Dense Conv 3"
+  top: "Dense Conv 3"
+}
+layer {
+  name: "Dense ReLU 3"
+  type: "ReLU"
+  bottom: "Dense Conv 3"
+  top: "Dense Conv 3"
+}
+layer {
+  name: "Dense Conv 4"
+  type: "Convolution"
+  bottom: "Dense Conv 3"
+  top: "Dense Conv 4"
+  convolution_param {
+    num_output: 64
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Dense Batch norm 4"
+  type: "BN"
+  bottom: "Dense Conv 4"
+  top: "Dense Conv 4"
+}
+layer {
+  name: "Concat 2"
+  type: "Concat"
+  bottom: "Dense Conv 4"
+  bottom: "Classic Conv 4"
+  top: "Concat 2"
+}
+layer {
+  name: "Dense ReLU 4"
+  type: "ReLU"
+  bottom: "Concat 2"
+  top: "Concat 2"
+}
+# ResidualBlock
+layer {
+  name: "Residual Conv 3"
+  type: "Convolution"
+  bottom: "Dense ReLU 4"
+  top: "Residual Conv 3"
+  convolution_param {
+    num_output: 128
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Residual Batch norm 3"
+  type: "BN"
+  bottom: "Residual Conv 3"
+  top: "Residual Conv 3"
+}
+layer {
+  name: "Residual ReLU 3"
+  type: "ReLU"
+  bottom: "Residual Conv 3"
+  top: "Residual Conv 3"
+}
+
+layer {
+  name: "Residual Conv 4"
+  type: "Convolution"
+  bottom: "Residual Conv 3"
+  top: "Residual Conv 4"
+  convolution_param {
+    num_output: 128
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Residual Batch norm 4"
+  type: "BN"
+  bottom: "Residual Conv 4"
+  top: "Residual Conv 4"
+}
+layer {
+  name: "Add 2"
+  type: "Eltwise"
+  bottom: "Residual Conv 4"
+  bottom: "Dense ReLU 4"
+  top: "Add 2"
+  eltwise_param {
+    operation: SUM
+  }
+}
+layer {
+  name: "Residual ReLU 4"
+  type: "ReLU"
+  bottom: "Add 2"
+  top: "Add 2"
+}
+layer {
+  name: "Max pooling 2"
+  type: "Pooling"
+  bottom: "Residual ReLU 4"
+  top: "Max pooling 2"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+    dilatation: 1
+    pad: 0
+  }
+}
+
+
+### Encoder block
+# Classic block
+layer {
+  name: "Classic Conv 5"
+  type: "Convolution"
+  bottom: "Max pooling 2"
+  top: "Classic Conv 5"
+  convolution_param {
+    num_output: 256
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "ReLU 5"
+  type: "ReLU"
+  bottom: "Classic Conv 5"
+  top: "Classic Conv 5"
+}
+layer {
+  name: "Batch norm 5"
+  type: "BN"
+  bottom: "Classic Conv 5"
+  top: "Classic Conv 5"
+}
+# Classic block
+layer {
+  name: "Classic Conv 6"
+  type: "Convolution"
+  bottom: "Classic Conv 5"
+  top: "Classic Conv 6"
+  convolution_param {
+    num_output: 256
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "ReLU 6"
+  type: "ReLU"
+  bottom: "Classic Conv 6"
+  top: "Classic Conv 6"
+}
+layer {
+  name: "Batch norm 6"
+  type: "BN"
+  bottom: "Classic Conv 6"
+  top: "Classic Conv 6"
+}
+# Dense block
+layer {
+  name: "Dense Conv 5"
+  type: "Convolution"
+  bottom: "Classic Conv 6"
+  top: "Dense Conv 5"
+  convolution_param {
+    num_output: 128
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Dense Batch norm 5"
+  type: "BN"
+  bottom: "Dense Conv 5"
+  top: "Dense Conv 5"
+}
+layer {
+  name: "Dense ReLU 5"
+  type: "ReLU"
+  bottom: "Dense Conv 5"
+  top: "Dense Conv 5"
+}
+layer {
+  name: "Dense Conv 6"
+  type: "Convolution"
+  bottom: "Dense Conv 5"
+  top: "Dense Conv 6"
+  convolution_param {
+    num_output: 128
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Dense Batch norm 6"
+  type: "BN"
+  bottom: "Dense Conv 6"
+  top: "Dense Conv 6"
+}
+layer {
+  name: "Concat 3"
+  type: "Concat"
+  bottom: "Dense Conv 6"
+  bottom: "Classic Conv 6"
+  top: "Concat 3"
+}
+layer {
+  name: "Dense ReLU 6"
+  type: "ReLU"
+  bottom: "Concat 3"
+  top: "Concat 3"
+}
+# ResidualBlock
+layer {
+  name: "Residual Conv 5"
+  type: "Convolution"
+  bottom: "Dense ReLU 6"
+  top: "Residual Conv 5"
+  convolution_param {
+    num_output: 256
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Residual Batch norm 5"
+  type: "BN"
+  bottom: "Residual Conv 5"
+  top: "Residual Conv 5"
+}
+layer {
+  name: "Residual ReLU 5"
+  type: "ReLU"
+  bottom: "Residual Conv 5"
+  top: "Residual Conv 5"
+}
+
+layer {
+  name: "Residual Conv 6"
+  type: "Convolution"
+  bottom: "Residual Conv 5"
+  top: "Residual Conv 6"
+  convolution_param {
+    num_output: 256
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Residual Batch norm 6"
+  type: "BN"
+  bottom: "Residual Conv 6"
+  top: "Residual Conv 6"
+}
+layer {
+  name: "Add 3"
+  type: "Eltwise"
+  bottom: "Residual Conv 6"
+  bottom: "Dense ReLU 6"
+  top: "Add 3"
+  eltwise_param {
+    operation: SUM
+  }
+}
+layer {
+  name: "Residual ReLU 6"
+  type: "ReLU"
+  bottom: "Add 3"
+  top: "Add 3"
+}
+layer {
+  name: "Max pooling 3"
+  type: "Pooling"
+  bottom: "Residual ReLU 6"
+  top: "Max pooling 3"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+    dilatation: 1
+    pad: 0
+  }
+}
+
+
+
+### Encoder block
+# Classic block
+layer {
+  name: "Classic Conv 7"
+  type: "Convolution"
+  bottom: "Max pooling 3"
+  top: "Classic Conv 7"
+  convolution_param {
+    num_output: 512
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "ReLU 7"
+  type: "ReLU"
+  bottom: "Classic Conv 7"
+  top: "Classic Conv 7"
+}
+layer {
+  name: "Batch norm 7"
+  type: "BN"
+  bottom: "Classic Conv 7"
+  top: "Classic Conv 7"
+}
+# Classic block
+layer {
+  name: "Classic Conv 8"
+  type: "Convolution"
+  bottom: "Classic Conv 7"
+  top: "Classic Conv 8"
+  convolution_param {
+    num_output: 512
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "ReLU 8"
+  type: "ReLU"
+  bottom: "Classic Conv 8"
+  top: "Classic Conv 8"
+}
+layer {
+  name: "Batch norm 8"
+  type: "BN"
+  bottom: "Classic Conv 8"
+  top: "Classic Conv 8"
+}
+# Dense block
+layer {
+  name: "Dense Conv 7"
+  type: "Convolution"
+  bottom: "Classic Conv 8"
+  top: "Dense Conv 7"
+  convolution_param {
+    num_output: 256
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Dense Batch norm 7"
+  type: "BN"
+  bottom: "Dense Conv 7"
+  top: "Dense Conv 7"
+}
+layer {
+  name: "Dense ReLU 7"
+  type: "ReLU"
+  bottom: "Dense Conv 7"
+  top: "Dense Conv 7"
+}
+layer {
+  name: "Dense Conv 8"
+  type: "Convolution"
+  bottom: "Dense Conv 7"
+  top: "Dense Conv 8"
+  convolution_param {
+    num_output: 256
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Dense Batch norm 8"
+  type: "BN"
+  bottom: "Dense Conv 8"
+  top: "Dense Conv 8"
+}
+layer {
+  name: "Concat 4"
+  type: "Concat"
+  bottom: "Dense Conv 8"
+  bottom: "Classic Conv 8"
+  top: "Concat 4"
+}
+layer {
+  name: "Dense ReLU 8"
+  type: "ReLU"
+  bottom: "Concat 4"
+  top: "Concat 4"
+}
+# ResidualBlock
+layer {
+  name: "Residual Conv 7"
+  type: "Convolution"
+  bottom: "Dense ReLU 8"
+  top: "Residual Conv 7"
+  convolution_param {
+    num_output: 512
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Residual Batch norm 7"
+  type: "BN"
+  bottom: "Residual Conv 7"
+  top: "Residual Conv 7"
+}
+layer {
+  name: "Residual ReLU 7"
+  type: "ReLU"
+  bottom: "Residual Conv 7"
+  top: "Residual Conv 7"
+}
+
+layer {
+  name: "Residual Conv 8"
+  type: "Convolution"
+  bottom: "Residual Conv 7"
+  top: "Residual Conv 8"
+  convolution_param {
+    num_output: 512
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Residual Batch norm 8"
+  type: "BN"
+  bottom: "Residual Conv 8"
+  top: "Residual Conv 8"
+}
+layer {
+  name: "Add 4"
+  type: "Eltwise"
+  bottom: "Residual Conv 8"
+  bottom: "Dense ReLU 8"
+  top: "Add 4"
+  eltwise_param {
+    operation: SUM
+  }
+}
+layer {
+  name: "Residual ReLU 8"
+  type: "ReLU"
+  bottom: "Add 4"
+  top: "Add 4"
+}
+layer {
+  name: "Max pooling 4"
+  type: "Pooling"
+  bottom: "Residual ReLU 8"
+  top: "Max pooling 4"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+    dilatation: 1
+    pad: 0
+  }
+}
+
+
+
+#############################
+###   TRANSITIONAL PART   ###
+#############################
+
+layer {
+  name: "Classic Conv 9"
+  type: "Convolution"
+  bottom: "Max pooling 4"
+  top: "Classic Conv 9"
+  convolution_param {
+    num_output: 1024
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "ReLU 9"
+  type: "ReLU"
+  bottom: "Classic Conv 9"
+  top: "Classic Conv 9"
+}
+layer {
+  name: "Batch norm 9"
+  type: "BN"
+  bottom: "Classic Conv 9"
+  top: "Classic Conv 9"
+}
+layer {
+  name: "Classic Conv 10"
+  type: "Convolution"
+  bottom: "Classic Conv 9"
+  top: "Classic Conv 10"
+  convolution_param {
+    num_output: 1024
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "ReLU 10"
+  type: "ReLU"
+  bottom: "Classic Conv 10"
+  top: "Classic Conv 10"
+}
+layer {
+  name: "Batch norm 10"
+  type: "BN"
+  bottom: "Classic Conv 10"
+  top: "Classic Conv 10"
+}
+# Conv Transpose
+layer {
+  name: "Conv Transpose 1"
+  type: "Deconvolution"
+  bottom: "Classic Conv 10"
+  top: "Conv Transpose 1"
+  convolution_param {
+    num_output: 512
+    kernel_size: 3
+    stride: 2.0666666666666666 #fix unknown approximation bug
+    pad: 1
+    output_pad: 1
+  }
+}
+
+
+
+########################
+###   DECODER PART   ###
+########################
+# Cat symetric encode block
+layer {
+  name: "UNet Concat 1"
+  type: "Concat"
+  bottom: "Add 4"
+  bottom: "Conv Transpose 1"
+  top: "UNet Concat 1"
+}
+### Decoder block
+# Classic block
+layer {
+  name: "Classic Conv 11"
+  type: "Convolution"
+  bottom: "UNet Concat 1"
+  top: "Classic Conv 11"
+  convolution_param {
+    num_output: 512
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "ReLU 11"
+  type: "ReLU"
+  bottom: "Classic Conv 11"
+  top: "Classic Conv 11"
+}
+layer {
+  name: "Batch norm 11"
+  type: "BN"
+  bottom: "Classic Conv 11"
+  top: "Classic Conv 11"
+}
+# Classic block
+layer {
+  name: "Classic Conv 12"
+  type: "Convolution"
+  bottom: "Classic Conv 11"
+  top: "Classic Conv 12"
+  convolution_param {
+    num_output: 512
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "ReLU 12"
+  type: "ReLU"
+  bottom: "Classic Conv 12"
+  top: "Classic Conv 12"
+}
+layer {
+  name: "Batch norm 12"
+  type: "BN"
+  bottom: "Classic Conv 12"
+  top: "Classic Conv 12"
+}
+# Conv Transpose
+layer {
+  name: "Conv Transpose 2"
+  type: "Deconvolution"
+  bottom: "Classic Conv 12"
+  top: "Conv Transpose 2"
+  convolution_param {
+    num_output: 256
+    kernel_size: 3
+    stride: 2.032258064516129 #fix unknown approximation bug
+    pad: 1
+    output_pad: 1
+  }
+}
+# Dense block
+layer {
+  name: "Dense Conv 11"
+  type: "Convolution"
+  bottom: "Conv Transpose 2"
+  top: "Dense Conv 11"
+  convolution_param {
+    num_output: 128
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Dense Batch norm 11"
+  type: "BN"
+  bottom: "Dense Conv 11"
+  top: "Dense Conv 11"
+}
+layer {
+  name: "Dense ReLU 11"
+  type: "ReLU"
+  bottom: "Dense Conv 11"
+  top: "Dense Conv 11"
+}
+layer {
+  name: "Dense Conv 12"
+  type: "Convolution"
+  bottom: "Dense Conv 11"
+  top: "Dense Conv 12"
+  convolution_param {
+    num_output: 128
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Dense Batch norm 12"
+  type: "BN"
+  bottom: "Dense Conv 12"
+  top: "Dense Conv 12"
+}
+layer {
+  name: "Concat 5"
+  type: "Concat"
+  bottom: "Dense Conv 12"
+  bottom: "Conv Transpose 2"
+  top: "Concat 5"
+}
+layer {
+  name: "Dense ReLU 12"
+  type: "ReLU"
+  bottom: "Concat 5"
+  top: "Concat 5"
+}
+# ResidualBlock
+layer {
+  name: "Residual Conv 11"
+  type: "Convolution"
+  bottom: "Dense ReLU 12"
+  top: "Residual Conv 11"
+  convolution_param {
+    num_output: 256
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Residual Batch norm 11"
+  type: "BN"
+  bottom: "Residual Conv 11"
+  top: "Residual Conv 11"
+}
+layer {
+  name: "Residual ReLU 11"
+  type: "ReLU"
+  bottom: "Residual Conv 11"
+  top: "Residual Conv 11"
+}
+layer {
+  name: "Residual Conv 12"
+  type: "Convolution"
+  bottom: "Residual Conv 11"
+  top: "Residual Conv 12"
+  convolution_param {
+    num_output: 256
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Residual Batch norm 12"
+  type: "BN"
+  bottom: "Residual Conv 12"
+  top: "Residual Conv 12"
+}
+layer {
+  name: "Add 5"
+  type: "Eltwise"
+  bottom: "Residual Conv 12"
+  bottom: "Dense ReLU 12"
+  top: "Add 5"
+  eltwise_param {
+    operation: SUM
+  }
+}
+layer {
+  name: "Residual ReLU 12"
+  type: "ReLU"
+  bottom: "Add 5"
+  top: "Add 5"
+}
+
+
+# Cat symetric encode block
+layer {
+  name: "UNet Concat 2"
+  type: "Concat"
+  bottom: "Add 3"
+  bottom: "Add 5"
+  top: "UNet Concat 2"
+}
+### Decoder block
+# Classic block
+layer {
+  name: "Classic Conv 13"
+  type: "Convolution"
+  bottom: "UNet Concat 2"
+  top: "Classic Conv 13"
+  convolution_param {
+    num_output: 256
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "ReLU 13"
+  type: "ReLU"
+  bottom: "Classic Conv 13"
+  top: "Classic Conv 13"
+}
+layer {
+  name: "Batch norm 13"
+  type: "BN"
+  bottom: "Classic Conv 13"
+  top: "Classic Conv 13"
+}
+# Classic block
+layer {
+  name: "Classic Conv 14"
+  type: "Convolution"
+  bottom: "Classic Conv 13"
+  top: "Classic Conv 14"
+  convolution_param {
+    num_output: 256
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "ReLU 14"
+  type: "ReLU"
+  bottom: "Classic Conv 14"
+  top: "Classic Conv 14"
+}
+layer {
+  name: "Batch norm 14"
+  type: "BN"
+  bottom: "Classic Conv 14"
+  top: "Classic Conv 14"
+}
+# Conv Transpose
+layer {
+  name: "Conv Transpose 3"
+  type: "Deconvolution"
+  bottom: "Classic Conv 14"
+  top: "Conv Transpose 3"
+  convolution_param {
+    num_output: 128
+    kernel_size: 3
+    stride: 2.015873015873016 #fix unknown approximation bug
+    pad: 1
+    output_pad: 1
+  }
+}
+# Dense block
+layer {
+  name: "Dense Conv 13"
+  type: "Convolution"
+  bottom: "Conv Transpose 3"
+  top: "Dense Conv 13"
+  convolution_param {
+    num_output: 64
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Dense Batch norm 13"
+  type: "BN"
+  bottom: "Dense Conv 13"
+  top: "Dense Conv 13"
+}
+layer {
+  name: "Dense ReLU 13"
+  type: "ReLU"
+  bottom: "Dense Conv 13"
+  top: "Dense Conv 13"
+}
+layer {
+  name: "Dense Conv 14"
+  type: "Convolution"
+  bottom: "Dense Conv 13"
+  top: "Dense Conv 14"
+  convolution_param {
+    num_output: 64
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Dense Batch norm 14"
+  type: "BN"
+  bottom: "Dense Conv 14"
+  top: "Dense Conv 14"
+}
+layer {
+  name: "Concat 6"
+  type: "Concat"
+  bottom: "Dense Conv 14"
+  bottom: "Conv Transpose 3"
+  top: "Concat 6"
+}
+layer {
+  name: "Dense ReLU 14"
+  type: "ReLU"
+  bottom: "Concat 6"
+  top: "Concat 6"
+}
+# ResidualBlock
+layer {
+  name: "Residual Conv 13"
+  type: "Convolution"
+  bottom: "Dense ReLU 14"
+  top: "Residual Conv 13"
+  convolution_param {
+    num_output: 128
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Residual Batch norm 13"
+  type: "BN"
+  bottom: "Residual Conv 13"
+  top: "Residual Conv 13"
+}
+layer {
+  name: "Residual ReLU 13"
+  type: "ReLU"
+  bottom: "Residual Conv 13"
+  top: "Residual Conv 13"
+}
+
+layer {
+  name: "Residual Conv 14"
+  type: "Convolution"
+  bottom: "Residual Conv 13"
+  top: "Residual Conv 14"
+  convolution_param {
+    num_output: 128
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Residual Batch norm 14"
+  type: "BN"
+  bottom: "Residual Conv 14"
+  top: "Residual Conv 14"
+}
+layer {
+  name: "Add 6"
+  type: "Eltwise"
+  bottom: "Residual Conv 14"
+  bottom: "Dense ReLU 14"
+  top: "Add 6"
+  eltwise_param {
+    operation: SUM
+  }
+}
+layer {
+  name: "Residual ReLU 14"
+  type: "ReLU"
+  bottom: "Add 6"
+  top: "Add 6"
+}
+
+
+# Cat symetric encode block
+layer {
+  name: "UNet Concat 3"
+  type: "Concat"
+  bottom: "Add 2"
+  bottom: "Add 6"
+  top: "UNet Concat 3"
+}
+### Decoder block
+# Classic block
+layer {
+  name: "Classic Conv 15"
+  type: "Convolution"
+  bottom: "UNet Concat 3"
+  top: "Classic Conv 15"
+  convolution_param {
+    num_output: 128
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "ReLU 15"
+  type: "ReLU"
+  bottom: "Classic Conv 15"
+  top: "Classic Conv 15"
+}
+layer {
+  name: "Batch norm 15"
+  type: "BN"
+  bottom: "Classic Conv 15"
+  top: "Classic Conv 15"
+}
+# Classic block
+layer {
+  name: "Classic Conv 16"
+  type: "Convolution"
+  bottom: "Classic Conv 15"
+  top: "Classic Conv 16"
+  convolution_param {
+    num_output: 128
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "ReLU 16"
+  type: "ReLU"
+  bottom: "Classic Conv 16"
+  top: "Classic Conv 16"
+}
+layer {
+  name: "Batch norm 16"
+  type: "BN"
+  bottom: "Classic Conv 16"
+  top: "Classic Conv 16"
+}
+# Conv Transpose
+layer {
+  name: "Conv Transpose 4"
+  type: "Deconvolution"
+  bottom: "Classic Conv 16"
+  top: "Conv Transpose 4"
+  convolution_param {
+    num_output: 64
+    kernel_size: 3
+    stride: 2.0078740157480315
+    pad: 1
+    output_pad: 1
+  }
+}
+# Dense block
+layer {
+  name: "Dense Conv 15"
+  type: "Convolution"
+  bottom: "Conv Transpose 4"
+  top: "Dense Conv 15"
+  convolution_param {
+    num_output: 32
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Dense Batch norm 15"
+  type: "BN"
+  bottom: "Dense Conv 15"
+  top: "Dense Conv 15"
+}
+layer {
+  name: "Dense ReLU 15"
+  type: "ReLU"
+  bottom: "Dense Conv 15"
+  top: "Dense Conv 15"
+}
+layer {
+  name: "Dense Conv 16"
+  type: "Convolution"
+  bottom: "Dense Conv 15"
+  top: "Dense Conv 16"
+  convolution_param {
+    num_output: 32
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Dense Batch norm 16"
+  type: "BN"
+  bottom: "Dense Conv 16"
+  top: "Dense Conv 16"
+}
+layer {
+  name: "Concat 7"
+  type: "Concat"
+  bottom: "Dense Conv 16"
+  bottom: "Conv Transpose 4"
+  top: "Concat 7"
+}
+layer {
+  name: "Dense ReLU 16"
+  type: "ReLU"
+  bottom: "Concat 7"
+  top: "Concat 7"
+}
+# ResidualBlock
+layer {
+  name: "Residual Conv 15"
+  type: "Convolution"
+  bottom: "Dense ReLU 16"
+  top: "Residual Conv 15"
+  convolution_param {
+    num_output: 64
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Residual Batch norm 15"
+  type: "BN"
+  bottom: "Residual Conv 15"
+  top: "Residual Conv 15"
+}
+layer {
+  name: "Residual ReLU 15"
+  type: "ReLU"
+  bottom: "Residual Conv 15"
+  top: "Residual Conv 15"
+}
+
+layer {
+  name: "Residual Conv 16"
+  type: "Convolution"
+  bottom: "Residual Conv 15"
+  top: "Residual Conv 16"
+  convolution_param {
+    num_output: 64
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "Residual Batch norm 16"
+  type: "BN"
+  bottom: "Residual Conv 16"
+  top: "Residual Conv 16"
+}
+layer {
+  name: "Add 7"
+  type: "Eltwise"
+  bottom: "Residual Conv 16"
+  bottom: "Dense ReLU 16"
+  top: "Add 7"
+  eltwise_param {
+    operation: SUM
+  }
+}
+layer {
+  name: "Residual ReLU 16"
+  type: "ReLU"
+  bottom: "Add 7"
+  top: "Add 7"
+}
+
+
+######################
+###   FINAL PART   ###
+######################
+
+
+# Cat symetric encode block
+layer {
+  name: "UNet Concat 4"
+  type: "Concat"
+  bottom: "Add 1"
+  bottom: "Add 7"
+  top: "UNet Concat 4"
+}
+### Final block
+# Classic block
+layer {
+  name: "Classic Conv 17"
+  type: "Convolution"
+  bottom: "UNet Concat 4"
+  top: "Classic Conv 17"
+  convolution_param {
+    num_output: 64
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "ReLU 17"
+  type: "ReLU"
+  bottom: "Classic Conv 17"
+  top: "Classic Conv 17"
+}
+layer {
+  name: "Batch norm 17"
+  type: "BN"
+  bottom: "Classic Conv 17"
+  top: "Classic Conv 17"
+}
+# Classic block
+layer {
+  name: "Classic Conv 18"
+  type: "Convolution"
+  bottom: "Classic Conv 17"
+  top: "Classic Conv 18"
+  convolution_param {
+    num_output: 64
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "ReLU 18"
+  type: "ReLU"
+  bottom: "Classic Conv 18"
+  top: "Classic Conv 18"
+}
+layer {
+  name: "Batch norm 18"
+  type: "BN"
+  bottom: "Classic Conv 18"
+  top: "Classic Conv 18"
+}
+# Classic block
+layer {
+  name: "Classic Conv 19"
+  type: "Convolution"
+  bottom: "Classic Conv 18"
+  top: "Classic Conv 19"
+  convolution_param {
+    num_output: 4
+    kernel_size: 3
+    stride: 1
+    pad: 1
+  }
+}
+layer {
+  name: "ReLU 19"
+  type: "ReLU"
+  bottom: "Classic Conv 19"
+  top: "Classic Conv 19"
+}
+layer {
+  name: "Batch norm 19"
+  type: "BN"
+  bottom: "Classic Conv 19"
+  top: "Classic Conv 19"
+}
+
+
+
+layer {
+  name: "Prediction"
+  type: "SoftmaxWithLoss"
+  bottom: "Classic Conv 19"
+  top: "Prediction"
+}

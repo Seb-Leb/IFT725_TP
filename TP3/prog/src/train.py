@@ -96,7 +96,7 @@ if __name__ == "__main__":
         transforms.Grayscale(),
         transforms.RandomAffine(degrees=45),
         transforms.ColorJitter(brightness=0.5, contrast=0.5),
-        transforms.RandomCrop(32),
+        transforms.RandomCrop(256),
         transforms.ToTensor()
     ])
 
